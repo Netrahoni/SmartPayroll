@@ -4,13 +4,6 @@
   "description": "The backend server for SmartPayroll",
   "main": "server.js",
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "dev:backend": "nodemon backend/server.js",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
   "author": "",
   "license": "ISC",
   "dependencies": {
