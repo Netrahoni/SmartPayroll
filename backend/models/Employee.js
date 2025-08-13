@@ -8,8 +8,10 @@ const employeeSchema = new mongoose.Schema({
     position: { type: String },
     hourlyRate: { type: Number, default: 0 },
     hoursWorked: { type: Number, default: 0 },
+    payPeriod: { type: String, default: 'Bi-Weekly' },
+    nextPayDate: { type: Date, default: () => new Date() }
 }, { timestamps: true });
 
 const Employee = mongoose.model('Employee', employeeSchema);
 
-export default Employee; // Changed this line
+export default Employee;

@@ -1,1 +1,6 @@
-@import "tailwindcss";
+/* All @import statements must come first */
+@import "react-datepicker/dist/react-datepicker.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

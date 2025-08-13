@@ -1,47 +1,53 @@
 import React, { useState } from 'react';
-import Sidebar from './Components/Sidebar';
-import Dashboard from './Components/Dashboard';
-import Employees from './Components/Employees';
-import Payroll from './Components/Payroll';
-import Reports from './Components/Reports';
-import Settings from './Components/Settings';
-import AddEmployee from './Components/AddEmployee'; // 1. Import AddEmployee
+import Sidebar from './Components/Sidebar.jsx';
+import Payroll from './Components/Payroll.jsx';
+import AddEmployee from './Components/AddEmployee.jsx';
+import EditEmployee from './Components/EditEmployee.jsx'; // You'll need to create this for the edit button to work
+import Dashboard from './Components/Dashboard.jsx';
+import Reports from './Components/Reports.jsx';
+import Settings from './Components/Settings.jsx';
+import Employees from './Components/Employees.jsx';
 
-// This component will decide which page to show
-// 3. Accept setActiveItem as a prop
-const PageContent = ({ activePage, setActiveItem }) => {
+const PageContent = ({ activePage, setActivePage, activeId, setActiveId }) => {
+    const handleNavigation = (page, id = null) => {
+        setActiveId(id);
+        setActivePage(page);
+    };
+
     switch (activePage) {
         case 'Dashboard':
-            return <Dashboard />;
+            return <Dashboard onNavigate={handleNavigation} />;
         case 'Employees':
-            // Pass the navigation function to the Employees component
-            return <Employees onNavigate={setActiveItem} />;
+            return <Employees onNavigate={handleNavigation} />;
         case 'Reports':
-            return <Reports />;
+            return <Reports onNavigate={handleNavigation} />;
         case 'Settings':
-            return <Settings />;
-        // 2. Add the new case for AddEmployee
+            return <Settings onNavigate={handleNavigation} />;
         case 'AddEmployee':
-            // Pass the navigation function so the form can "go back"
-            return <AddEmployee onNavigate={setActiveItem} />;
+            return <AddEmployee onNavigate={handleNavigation} />;
+        case 'EditEmployee':
+            return <EditEmployee onNavigate={handleNavigation} employeeId={activeId} />;
         case 'Payroll':
         default:
-            // Pass the navigation function to the Payroll component
-            return <Payroll onNavigate={setActiveItem} />;
+            return <Payroll onNavigate={handleNavigation} />;
     }
 };
 
-// Main App Component
 export default function App() {
-  const [activeItem, setActiveItem] = useState('Dashboard');
+    const [activeItem, setActiveItem] = useState('Payroll');
+    const [activeId, setActiveId] = useState(null);
 
-  return (
-    <div className="flex bg-gray-100 font-sans">
-      <Sidebar activeItem={activeItem} setActiveItem={setActiveItem} />
-      <main className="flex-1 p-0 overflow-y-auto h-screen"> {/* Adjusted padding to p-0 */}
-        {/* 3. Pass setActiveItem down to PageContent */}
-        <PageContent activePage={activeItem} setActiveItem={setActiveItem} />
-      </main>
-    </div>
-  );
+    return (
+        <div className="flex bg-gray-100 font-sans">
+            <Sidebar activeItem={activeItem} setActiveItem={setActiveItem} />
+            <main className="flex-1 p-0 overflow-y-auto h-screen">
+                <PageContent
+                    activePage={activeItem}
+                    setActivePage={setActiveItem}
+                    activeId={activeId}
+                    setActiveId={setActiveId}
+                />
+            </main>
+        </div>
+    );
 }
