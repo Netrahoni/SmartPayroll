@@ -11,13 +11,13 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
         basicSalary: 0, otherPayment: 0, overtimeHours: 0, hourlyRate: 0, studentLoan: 0,
         taxCode: '1257L', sin: '', niCode: 'A',
         taxablePay: 0, pensionPay: 0, niPayment: 0, taxPayment: 0, netPay: 0,
+        status: 'Active', // Added status for consistency
     };
 
     const [employeeData, setEmployeeData] = useState(initialEmployeeState);
     const [isEditMode, setIsEditMode] = useState(false);
     const [allEmployees, setAllEmployees] = useState([]);
     const [selectedEmployeeId, setSelectedEmployeeId] = useState(employeeId || '');
-
 
     useEffect(() => {
         const fetchAllEmployees = async () => {
@@ -37,7 +37,9 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
                 try {
                     const response = await fetch(`http://localhost:5000/api/employees/${employeeId}`);
                     const data = await response.json();
-                    setEmployeeData({ ...data, nextPayDate: new Date(data.nextPayDate) });
+                    // --- THIS IS THE FIX ---
+                    // Merge fetched data with the initial state to ensure no fields are undefined
+                    setEmployeeData({ ...initialEmployeeState, ...data, nextPayDate: new Date(data.nextPayDate) });
                 } catch (error) {
                     console.error("Failed to fetch employee:", error);
                 }
@@ -94,7 +96,10 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(employeeData),
             });
-            if (!response.ok) throw new Error('Failed to save record');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.msg || 'Failed to save record');
+            }
             alert(`Employee record ${isEditMode ? 'updated' : 'saved'} successfully!`);
             onNavigate('Payroll');
         } catch (error) {
@@ -107,7 +112,7 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
             const fetchEmployee = async () => {
                 const response = await fetch(`http://localhost:5000/api/employees/${employeeId}`);
                 const data = await response.json();
-                setEmployeeData({ ...data, nextPayDate: new Date(data.nextPayDate) });
+                setEmployeeData({ ...initialEmployeeState, ...data, nextPayDate: new Date(data.nextPayDate) });
             };
             fetchEmployee();
         } else {
@@ -155,9 +160,15 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
                                     <option>Male</option><option>Female</option><option>Other</option>
                                 </select>
                             </div>
+                             <div>
+                                <label className="block text-sm font-medium text-gray-600">Status</label>
+                                <select name="status" value={employeeData.status} onChange={handleInputChange} className="w-full mt-1 p-2 border rounded-md bg-white">
+                                    <option>Active</option><option>On Leave</option>
+                                </select>
+                            </div>
                         </div>
                     </section>
-
+                    
                     {/* Company & Payroll Details */}
                     <section>
                         <h3 className="text-lg font-semibold border-b pb-2 mb-4 text-gray-700">Company & Payroll Details</h3>
@@ -260,13 +271,12 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
                         </div>
                     </section>
                 </div>
-                {/* Action Panel */}
                 <div className="lg:col-span-1">
                     <div className="bg-white p-6 rounded-lg shadow-md sticky top-8 space-y-4">
                         <h3 className="text-lg font-semibold text-gray-700">Actions</h3>
-                        <button onClick={handleCalculatePay} className="w-full flex items-center justify-center p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600"><Icon path={ICONS.calculator} className="w-5 h-5 mr-2"/>Calculate Pay</button>
-                        <button onClick={handleSaveRecord} className="w-full flex items-center justify-center p-3 bg-green-500 text-white rounded-md hover:bg-green-600"><Icon path={ICONS.save} className="w-5 h-5 mr-2"/>{isEditMode ? 'Update Record' : 'Save Record'}</button>
-                        <button onClick={handleReset} className="w-full flex items-center justify-center p-3 bg-gray-500 text-white rounded-md hover:bg-gray-600"><Icon path={ICONS.refresh} className="w-5 h-5 mr-2"/>Reset Form</button>
+                        <button onClick={handleCalculatePay} className="w-full flex items-center justify-center p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600">Calculate Pay</button>
+                        <button onClick={handleSaveRecord} className="w-full flex items-center justify-center p-3 bg-green-500 text-white rounded-md hover:bg-green-600">{isEditMode ? 'Update Record' : 'Save Record'}</button>
+                        <button onClick={handleReset} className="w-full flex items-center justify-center p-3 bg-gray-500 text-white rounded-md hover:bg-gray-600">Reset Form</button>
                         <button onClick={() => onNavigate('Payroll')} className="w-full flex items-center justify-center p-3 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 mt-4">Cancel</button>
                     </div>
                 </div>

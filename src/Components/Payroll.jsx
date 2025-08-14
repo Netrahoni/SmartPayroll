@@ -19,10 +19,10 @@ const CustomDatePickerInput = React.forwardRef(({ value, onClick }, ref) => (
 
 const Payroll = ({ onNavigate }) => {
     // --- STATE MANAGEMENT ---
-    const [employees, setEmployees] = useState([]); // Master list of all employees
+    const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
-    const [payPeriodFilter, setPayPeriodFilter] = useState('All Periods'); // State for the filter dropdown
+    const [payPeriodFilter, setPayPeriodFilter] = useState('All Periods');
     const [nextPayDate, setNextPayDate] = useState(new Date());
     const INCOME_TAX_RATE = 0.15;
     const CPP_RATE = 0.0595;
@@ -61,7 +61,7 @@ const Payroll = ({ onNavigate }) => {
 
 
     // --- PAYROLL & PDF FUNCTIONS ---
-    const handleRunPayroll = () => alert("This would trigger a backend process to finalize payroll for the selected period.");
+    const handleRunPayroll = () => alert("This would trigger a backend process to finalize payroll for the selected period, generate records, and queue payments.");
 
     const handleDownloadFullReport = () => {
         if (filteredEmployees.length === 0) {
@@ -116,92 +116,97 @@ const Payroll = ({ onNavigate }) => {
         if (!employee) return alert("Cannot generate stub for an invalid employee.");
         alert(`Generating pay stub for ${employee.employeeName}...`);
         
-        const doc = new jsPDF();
-        const grossPay = (employee.basicSalary || 0);
-        const incomeTax = (employee.taxPayment || 0);
-        const cpp = (employee.pensionPay || 0);
-        const ei = (employee.niPayment || 0);
-        const totalTaxes = incomeTax + cpp + ei;
-        const netPay = (employee.netPay || 0);
+        try {
+            const doc = new jsPDF();
+            const grossPay = (employee.basicSalary || 0);
+            const incomeTax = (employee.taxPayment || 0);
+            const cpp = (employee.pensionPay || 0);
+            const ei = (employee.niPayment || 0);
+            const totalTaxes = incomeTax + cpp + ei;
+            const netPay = (employee.netPay || 0);
 
-        // Header
-        doc.setFontSize(22);
-        doc.setFont('helvetica', 'bold');
-        doc.text("SmartPayroll Inc.", 14, 20);
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        doc.text("123 Payroll Lane, Toronto, ON, M5V 2T6", 14, 26);
+            // Header
+            doc.setFontSize(22);
+            doc.setFont('helvetica', 'bold');
+            doc.text("SmartPayroll Inc.", 14, 20);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text("12 Km Stone, NH-3, Grand Trunk Road, Meharbanpur, Punjab 143109", 14, 26);
 
-        // Pay Stub Details
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text("Pay Stub Detail", 150, 40);
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        doc.text(`PAY DATE: ${format(new Date(employee.nextPayDate), 'MM/dd/yyyy')}`, 150, 46);
-        doc.text(`NET PAY: ${formatCurrency(netPay)}`, 150, 52);
+            // Pay Stub Details
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text("Pay Stub Detail", 150, 40);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`PAY DATE: ${format(new Date(employee.nextPayDate), 'MM/dd/yyyy')}`, 150, 46);
+            doc.text(`NET PAY: ${formatCurrency(netPay)}`, 150, 52);
 
-        // Employee & Pay Period Info
-        doc.line(14, 60, 200, 60);
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'bold');
-        doc.text("EMPLOYEE", 14, 68);
-        doc.setFont('helvetica', 'normal');
-        doc.text(employee.employeeName, 14, 74);
-        doc.text(employee.address || 'No address on file', 14, 80);
-        
-        doc.setFont('helvetica', 'bold');
-        doc.text("PAY PERIOD", 120, 68);
-        doc.setFont('helvetica', 'normal');
-        doc.text(`Period: ${employee.payPeriod}`, 120, 74);
-        doc.text(`Total Hours: ${(employee.overtimeHours || 0).toFixed(2)}`, 120, 80);
-        doc.line(14, 90, 200, 90);
+            // Employee & Pay Period Info
+            doc.line(14, 60, 200, 60);
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text("EMPLOYEE", 14, 68);
+            doc.setFont('helvetica', 'normal');
+            doc.text(employee.employeeName, 14, 74);
+            doc.text(employee.address || 'No address on file', 14, 80);
+            
+            doc.setFont('helvetica', 'bold');
+            doc.text("PAY PERIOD", 120, 68);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Period: ${employee.payPeriod}`, 120, 74);
+            doc.text(`Total Hours: ${(employee.overtimeHours || 0).toFixed(2)}`, 120, 80);
+            doc.line(14, 90, 200, 90);
 
-        // Earnings & Taxes Tables
-        autoTable(doc, { // <-- CORRECTED FUNCTION CALL
-            startY: 95,
-            head: [['Earnings', 'Current']],
-            body: [
-                ['Basic Salary', formatCurrency(employee.basicSalary)],
-                ['Other Payments', formatCurrency(employee.otherPayment)],
-                ['Overtime', formatCurrency((employee.overtimeHours || 0) * (employee.hourlyRate || 0))]
-            ],
-            theme: 'striped',
-            headStyles: { fillColor: [41, 128, 185] }
-        });
+            // Earnings & Taxes Tables
+            autoTable(doc, { // <-- CORRECTED FUNCTION CALL
+                startY: 95,
+                head: [['Earnings', 'Current']],
+                body: [
+                    ['Basic Salary', formatCurrency(employee.basicSalary)],
+                    ['Other Payments', formatCurrency(employee.otherPayment)],
+                    ['Overtime', formatCurrency((employee.overtimeHours || 0) * (employee.hourlyRate || 0))]
+                ],
+                theme: 'striped',
+                headStyles: { fillColor: [41, 128, 185] }
+            });
 
-        autoTable(doc, { // <-- CORRECTED FUNCTION CALL
-            startY: (doc).lastAutoTable.finalY + 5,
-            head: [['Deductions & Taxes', 'Current']],
-            body: [
-                ['Income Tax', formatCurrency(incomeTax)],
-                ['Pension (CPP)', formatCurrency(cpp)],
-                ['NI Payment (EI)', formatCurrency(ei)],
-                ['Student Loan', formatCurrency(employee.studentLoan)]
-            ],
-            theme: 'striped',
-            headStyles: { fillColor: [231, 76, 60] }
-        });
+            autoTable(doc, { // <-- CORRECTED FUNCTION CALL
+                startY: (doc).lastAutoTable.finalY + 5,
+                head: [['Deductions & Taxes', 'Current']],
+                body: [
+                    ['Income Tax', formatCurrency(incomeTax)],
+                    ['Pension (CPP)', formatCurrency(cpp)],
+                    ['NI Payment (EI)', formatCurrency(ei)],
+                    ['Student Loan', formatCurrency(employee.studentLoan)]
+                ],
+                theme: 'striped',
+                headStyles: { fillColor: [231, 76, 60] }
+            });
 
-        // Summary
-        const finalY = (doc).lastAutoTable.finalY + 10;
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'bold');
-        doc.text("SUMMARY", 150, finalY);
-        autoTable(doc, { // <-- CORRECTED FUNCTION CALL
-            startY: finalY + 5,
-            body: [
-                ['Gross Pay', formatCurrency(grossPay)],
-                ['Total Taxes & Deductions', `-${formatCurrency(totalTaxes + (employee.studentLoan || 0))}`],
-                ['Net Pay', formatCurrency(netPay)],
-            ],
-            theme: 'plain',
-            styles: { cellPadding: 2, fontSize: 10 },
-            columnStyles: { 0: { fontStyle: 'bold' } },
-            margin: { left: 130 }
-        });
+            // Summary
+            const finalY = (doc).lastAutoTable.finalY + 10;
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text("SUMMARY", 150, finalY);
+            autoTable(doc, { // <-- CORRECTED FUNCTION CALL
+                startY: finalY + 5,
+                body: [
+                    ['Gross Pay', formatCurrency(grossPay)],
+                    ['Total Taxes & Deductions', `-${formatCurrency(totalTaxes + (employee.studentLoan || 0))}`],
+                    ['Net Pay', formatCurrency(netPay)],
+                ],
+                theme: 'plain',
+                styles: { cellPadding: 2, fontSize: 10 },
+                columnStyles: { 0: { fontStyle: 'bold' } },
+                margin: { left: 130 }
+            });
 
-        doc.save(`Pay-Stub-${employee.employeeName.replace(' ', '-')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+            doc.save(`Pay-Stub-${employee.employeeName.replace(' ', '-')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+        } catch(error) {
+            console.error("Pay Stub Generation Error:", error);
+            alert("An error occurred while generating the pay stub.");
+        }
     };
 
     // --- CRUD FUNCTIONS ---
@@ -227,7 +232,7 @@ const Payroll = ({ onNavigate }) => {
     return (
         <div className="p-8">
             <PageHeader
-                title="Canadian Payroll System"
+                title="Hamro Payroll System"
                 action={
                     <div className="flex items-center space-x-4">
                         <button onClick={() => onNavigate('AddOrEditEmployee')} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600">

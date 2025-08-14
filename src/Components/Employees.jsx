@@ -1,62 +1,173 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import PageHeader from './PageHeader';
 import Card from './Card';
 import Icon from './Icon';
 import { ICONS } from '../icons';
 
-const Employees = () => {
-    const employees = [
-        { id: 'EMP-001', name: 'Johnathan Smith', position: 'Senior Developer', department: 'Technology', email: 'j.smith@company.ca', phone: '555-1234', status: 'Active' },
-        { id: 'EMP-002', name: 'Kate Williams', position: 'Project Manager', department: 'Management', email: 'k.williams@company.ca', phone: '555-5678', status: 'Active' },
-        { id: 'EMP-003', name: 'Peter Jones', position: 'UI/UX Designer', department: 'Design', email: 'p.jones@company.ca', phone: '555-9012', status: 'Active' },
-        { id: 'EMP-004', name: 'Maria Garcia', position: 'QA Tester', department: 'Technology', email: 'm.garcia@company.ca', phone: '555-3456', status: 'On Leave' },
-        { id: 'EMP-005', name: 'David Lee', position: 'Marketing Head', department: 'Marketing', email: 'd.lee@company.ca', phone: '555-7890', status: 'Active' },
-    ];
+const Employees = ({ onNavigate, employees, fetchEmployees }) => {
+    // --- STATE MANAGEMENT ---
+    const [searchQuery, setSearchQuery] = useState("");
+    const [statusFilter, setStatusFilter] = useState("All");
+    const [selectedEmployees, setSelectedEmployees] = useState(new Set());
+
+    // --- FILTERING AND SEARCHING (Now uses the 'employees' prop) ---
+    const filteredEmployees = useMemo(() => {
+        return employees.filter(emp => {
+            const matchesStatus = statusFilter === 'All' || emp.status === statusFilter;
+            const matchesSearch = searchQuery === "" ||
+                emp.employeeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                emp.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                emp.department.toLowerCase().includes(searchQuery.toLowerCase());
+            return matchesStatus && matchesSearch;
+        });
+    }, [employees, searchQuery, statusFilter]);
+
+    // --- CRUD & ACTION FUNCTIONS ---
+    const handleDelete = async (employeeId) => {
+        if (!window.confirm("Are you sure you want to delete this employee?")) return;
+        try {
+            await fetch(`http://localhost:5000/api/employees/${employeeId}`, { method: 'DELETE' });
+            fetchEmployees(); // Use the passed-in function to refresh the master list in App.jsx
+        } catch (error) {
+            console.error("Error deleting employee:", error);
+        }
+    };
+
+    const handleEdit = (employeeId) => {
+        onNavigate('AddOrEditEmployee', employeeId);
+    };
+
+    const handleExportData = () => {
+        if (selectedEmployees.size === 0) {
+            alert("Please select at least one employee to export.");
+            return;
+        }
+        alert(`Exporting data for ${selectedEmployees.size} employees...`);
+        
+        const employeesToExport = employees.filter(emp => selectedEmployees.has(emp._id));
+        
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Employee Name,ID,Position,Department,Status\n";
+        employeesToExport.forEach(emp => {
+            const row = [emp.employeeName, emp._id, emp.position, emp.department, emp.status].join(",");
+            csvContent += row + "\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "employee_data.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+    
+    // --- CHECKBOX HANDLING ---
+    const handleSelectAll = (e) => {
+        if (e.target.checked) {
+            const allIds = new Set(filteredEmployees.map(emp => emp._id));
+            setSelectedEmployees(allIds);
+        } else {
+            setSelectedEmployees(new Set());
+        }
+    };
+
+    const handleSelectOne = (e, id) => {
+        const newSet = new Set(selectedEmployees);
+        if (e.target.checked) {
+            newSet.add(id);
+        } else {
+            newSet.delete(id);
+        }
+        setSelectedEmployees(newSet);
+    };
+
+    // --- UI COMPONENTS ---
+    const StatusBadge = ({ status }) => {
+        const baseClasses = "px-2.5 py-1 text-xs font-semibold rounded-full inline-block";
+        const statusClasses = {
+            'Active': 'bg-green-100 text-green-800',
+            'On Leave': 'bg-yellow-100 text-yellow-800',
+        };
+        return <span className={`${baseClasses} ${statusClasses[status] || 'bg-gray-100 text-gray-800'}`}>{status}</span>;
+    };
+
     return (
-        <div>
+        <div className="p-8 bg-gray-50 min-h-screen">
             <PageHeader title="Employee Management" />
+            
             <Card>
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold text-gray-700">All Employees</h2>
-                    <div className="relative">
-                        <Icon path={ICONS.search} className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <input type="text" placeholder="Search employees..." className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+                    <div className="relative w-full md:w-1/3">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Icon path={ICONS.search} className="w-5 h-5 text-gray-400" />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Search employees..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <select onChange={(e) => setStatusFilter(e.target.value)} value={statusFilter} className="p-2 border border-gray-300 rounded-lg bg-white text-sm">
+                            <option value="All">Filter by Status</option>
+                            <option value="Active">Active</option>
+                            <option value="On Leave">On Leave</option>
+                        </select>
+                        <button onClick={() => onNavigate('AddOrEditEmployee')} className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-700">
+                            <Icon path={ICONS.add} className="w-5 h-5 mr-2" />Add Employee
+                        </button>
+                        <button onClick={handleExportData} className="flex items-center bg-gray-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-gray-800">
+                            Export Data
+                        </button>
                     </div>
                 </div>
+
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-gray-50 border-b border-gray-200 text-sm text-gray-600 uppercase">
+                                <th className="p-4 w-4">
+                                    <input type="checkbox" onChange={handleSelectAll} checked={selectedEmployees.size > 0 && selectedEmployees.size === filteredEmployees.length && filteredEmployees.length > 0} />
+                                </th>
                                 <th className="py-3 px-4 font-semibold">Employee</th>
-                                <th className="py-3 px-4 font-semibold">Position</th>
+                                <th className="py-3 px-4 font-semibold">Job Title</th>
                                 <th className="py-3 px-4 font-semibold">Department</th>
                                 <th className="py-3 px-4 font-semibold">Status</th>
                                 <th className="py-3 px-4 font-semibold text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="text-gray-700">
-                            {employees.map((emp) => (
-                                <tr key={emp.id} className="border-b border-gray-200 hover:bg-gray-50">
-                                    <td className="py-4 px-4">
-                                        <div className="font-medium">{emp.name}</div>
-                                        <div className="text-sm text-gray-500">{emp.id}</div>
-                                    </td>
-                                    <td className="py-4 px-4">{emp.position}</td>
-                                    <td className="py-4 px-4">{emp.department}</td>
-                                    <td className="py-4 px-4">
-                                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${emp.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                                            {emp.status}
-                                        </span>
-                                    </td>
-                                    <td className="py-4 px-4">
-                                        <div className="flex items-center justify-center space-x-3">
-                                            <button className="text-gray-500 hover:text-blue-500 transition-colors"><Icon path={ICONS.edit} className="w-5 h-5" /></button>
-                                            <button className="text-gray-500 hover:text-red-500 transition-colors"><Icon path={ICONS.delete} className="w-5 h-5" /></button>
-                                            <button className="text-gray-500 hover:text-gray-700 transition-colors"><Icon path={ICONS.dots} className="w-5 h-5" /></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
+                            {employees.length === 0 ? (
+                                <tr><td colSpan="6" className="text-center py-10">No employees found.</td></tr>
+                            ) : (
+                                filteredEmployees.map((emp) => (
+                                    <tr key={emp._id} className="border-b border-gray-200 hover:bg-gray-50">
+                                        <td className="p-4">
+                                            <input type="checkbox" checked={selectedEmployees.has(emp._id)} onChange={(e) => handleSelectOne(e, emp._id)} />
+                                        </td>
+                                        <td className="py-4 px-4">
+                                            <div>
+                                                <div className="font-medium">{emp.employeeName}</div>
+                                                <div className="text-sm text-gray-500">{emp._id.slice(-6).toUpperCase()}</div>
+                                            </div>
+                                        </td>
+                                        <td className="py-4 px-4">{emp.position}</td>
+                                        <td className="py-4 px-4">{emp.department}</td>
+                                        <td className="py-4 px-4">
+                                            <StatusBadge status={emp.status} />
+                                        </td>
+                                        <td className="py-4 px-4">
+                                            <div className="flex items-center justify-center space-x-3">
+                                                <button onClick={() => handleEdit(emp._id)} className="text-gray-500 hover:text-blue-500" title="Edit Employee"><Icon path={ICONS.edit} className="w-5 h-5" /></button>
+                                                <button onClick={() => handleDelete(emp._id)} className="text-gray-500 hover:text-red-500" title="Delete Employee"><Icon path={ICONS.delete} className="w-5 h-5" /></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>

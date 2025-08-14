@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-
-// Component Imports
+import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from './Components/Sidebar.jsx';
 import Payroll from './Components/Payroll.jsx';
 import AddOrEditEmployee from './Components/AddOrEditEmployee.jsx';
@@ -9,39 +7,58 @@ import Reports from './Components/Reports.jsx';
 import Settings from './Components/Settings.jsx';
 import Employees from './Components/Employees.jsx';
 
-// PageContent now also receives the refreshKey to pass to Payroll
-const PageContent = ({ activePage, onNavigate, activeId, refreshKey }) => {
+const PageContent = ({ activePage, onNavigate, activeId, employees, fetchEmployees }) => {
     switch (activePage) {
         case 'Dashboard':
             return <Dashboard onNavigate={onNavigate} />;
         case 'Employees':
-            return <Employees onNavigate={onNavigate} />;
+            // Pass the master list and fetch function down
+            return <Employees onNavigate={onNavigate} employees={employees} fetchEmployees={fetchEmployees} />;
         case 'Reports':
             return <Reports onNavigate={onNavigate} />;
         case 'Settings':
             return <Settings onNavigate={onNavigate} />;
         case 'AddOrEditEmployee':
+            // The form still needs onNavigate to come back
             return <AddOrEditEmployee onNavigate={onNavigate} employeeId={activeId} />;
         case 'Payroll':
         default:
-            // 1. The 'key' prop is added here. When it changes, the component will remount.
-            return <Payroll onNavigate={onNavigate} key={refreshKey} />;
+            // Pass the master list and fetch function down
+            return <Payroll onNavigate={onNavigate} employees={employees} fetchEmployees={fetchEmployees} />;
     }
 };
 
-// Main App Component
 export default function App() {
     const [activeItem, setActiveItem] = useState('Payroll');
     const [activeId, setActiveId] = useState(null);
-    // 2. We add a new piece of state to act as our refresh trigger.
-    const [refreshKey, setRefreshKey] = useState(0);
+    
+    // --- STATE IS NOW LIFTED TO THE APP COMPONENT ---
+    const [employees, setEmployees] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // 3. This function now handles both navigation AND triggers the refresh.
+    const fetchEmployees = useCallback(async () => {
+        setLoading(true);
+        try {
+            const response = await fetch('http://localhost:5000/api/employees');
+            if (!response.ok) throw new Error('Failed to fetch data');
+            const data = await response.json();
+            setEmployees(data);
+        } catch (error) {
+            console.error("Error fetching employees:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchEmployees();
+    }, [fetchEmployees]);
+    
+    // This function now handles navigation AND triggers a data refresh
     const handleNavigation = (page, id = null) => {
-        // If we are navigating back to the Payroll page...
-        if (page === 'Payroll') {
-            // ...we increment the key. This is the crucial step that forces the refresh.
-            setRefreshKey(prevKey => prevKey + 1);
+        // If we are coming back from the form, refresh the data
+        if (page === 'Payroll' || page === 'Employees') {
+            fetchEmployees();
         }
         setActiveId(id);
         setActiveItem(page);
@@ -53,9 +70,10 @@ export default function App() {
             <main className="flex-1 p-0 overflow-y-auto h-screen">
                 <PageContent
                     activePage={activeItem}
-                    onNavigate={handleNavigation} // Pass the new combined function
+                    onNavigate={handleNavigation}
                     activeId={activeId}
-                    refreshKey={refreshKey} // Pass the key itself down to PageContent
+                    employees={employees} // Pass the data down
+                    fetchEmployees={fetchEmployees} // Pass the refresh function down
                 />
             </main>
         </div>

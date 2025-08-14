@@ -6,6 +6,9 @@ const employeeSchema = new mongoose.Schema({
     address: { type: String, trim: true },
     postalCode: { type: String, trim: true },
     gender: { type: String, enum: ['Male', 'Female', 'Other'], default: 'Other' },
+    
+    // Employee Status
+    status: { type: String, enum: ['Active', 'On Leave'], default: 'Active' },
 
     // Company & Position
     department: { type: String, trim: true },
