@@ -112,7 +112,7 @@ const Employees = ({ onNavigate, employees, fetchEmployees }) => {
                     </div>
                     <div className="flex items-center gap-2">
                         <select onChange={(e) => setStatusFilter(e.target.value)} value={statusFilter} className="p-2 border border-gray-300 rounded-lg bg-white text-sm">
-                            <option value="All">Filter by Status</option>
+                            <option value="All">Filter By Status</option>
                             <option value="Active">Active</option>
                             <option value="On Leave">On Leave</option>
                         </select>

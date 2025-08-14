@@ -259,8 +259,8 @@ const Payroll = ({ onNavigate }) => {
                                 <p className="text-sm text-gray-500">Filter by Pay Period</p>
                                 <select value={payPeriodFilter} onChange={e => setPayPeriodFilter(e.target.value)} className="text-lg font-bold text-gray-800 bg-transparent -ml-1 border-none focus:ring-0">
                                     <option>All Periods</option>
+                                    <option>Per Day</option>
                                     <option>Weekly</option>
-                                    <option>Bi-Weekly</option>
                                     <option>Monthly</option>
                                     <option>Annually</option>
                                 </select>

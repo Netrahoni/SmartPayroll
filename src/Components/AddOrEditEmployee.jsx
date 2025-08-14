@@ -196,8 +196,8 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
                             <div>
                                 <label className="block text-sm font-medium text-gray-600">Pay Period</label>
                                 <select name="payPeriod" value={employeeData.payPeriod} onChange={handleInputChange} className="w-full mt-1 p-2 border rounded-md bg-white">
+                                    <option>Per Day</option>
                                     <option>Weekly</option>
-                                    <option>Bi-Weekly</option>
                                     <option>Monthly</option>
                                     <option>Annually</option>
                                 </select>
@@ -235,10 +235,17 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
                     {/* Payroll Calculation */}
                     <section>
                         <h3 className="text-lg font-semibold border-b pb-2 mb-4 text-gray-700">Payroll Calculation</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            {/* --- MODIFIED TAX PERIOD FIELD --- */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-600">Tax Period</label>
-                                <input type="text" value={format(employeeData.nextPayDate, 'MMMM yyyy')} className="w-full mt-1 p-2 border rounded-md bg-gray-100" readOnly/>
+                                <DatePicker
+                                    selected={employeeData.nextPayDate}
+                                    onChange={handleDateChange}
+                                    className="w-full mt-1 p-2 border rounded-md"
+                                    dateFormat="MMMM yyyy"
+                                    showMonthYearPicker
+                                />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-600">Tax Code</label>
