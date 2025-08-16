@@ -1,24 +1,21 @@
-import express from 'express';         // Changed this line
-import mongoose from 'mongoose';       // Changed this line
-import cors from 'cors';               // Changed this line
-import employeeRoutes from './routes/employees.js'; // Changed this line
+import express from 'express';
+import cors from 'cors';
+import connectDB from './config/db.js'; // 1. Imports the new DB connection function
+import employeeRoutes from './routes/employees.js';
+import payrollRoutes from './routes/payroll.js'; // 2. Imports the payroll routes
 
 const app = express();
+
+// 3. Connects to the database
+connectDB();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// DB Config
-const MONGO_URI = 'mongodb://localhost:27017/smartpayroll';
-
-// Connect to MongoDB
-mongoose.connect(MONGO_URI)
-    .then(() => console.log('MongoDB Connected...'))
-    .catch(err => console.log(err));
-
 // Use Routes
-app.use('/api/employees', employeeRoutes); // Changed this line
+app.use('/api/employees', employeeRoutes);
+app.use('/api/payroll', payrollRoutes); // 4. Tells the server to use the payroll routes
 
 const PORT = process.env.PORT || 5000;
 

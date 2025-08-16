@@ -7,35 +7,36 @@ import Reports from './Components/Reports.jsx';
 import Settings from './Components/Settings.jsx';
 import Employees from './Components/Employees.jsx';
 
+// This component now receives the master employee list and passes it to the active page
 const PageContent = ({ activePage, onNavigate, activeId, employees, fetchEmployees }) => {
     switch (activePage) {
         case 'Dashboard':
-            return <Dashboard onNavigate={onNavigate} />;
+            // Pass the master list down to the Dashboard
+            return <Dashboard onNavigate={onNavigate} employees={employees} />;
         case 'Employees':
-            // Pass the master list and fetch function down
             return <Employees onNavigate={onNavigate} employees={employees} fetchEmployees={fetchEmployees} />;
         case 'Reports':
             return <Reports onNavigate={onNavigate} />;
         case 'Settings':
             return <Settings onNavigate={onNavigate} />;
         case 'AddOrEditEmployee':
-            // The form still needs onNavigate to come back
             return <AddOrEditEmployee onNavigate={onNavigate} employeeId={activeId} />;
         case 'Payroll':
         default:
-            // Pass the master list and fetch function down
             return <Payroll onNavigate={onNavigate} employees={employees} fetchEmployees={fetchEmployees} />;
     }
 };
 
 export default function App() {
-    const [activeItem, setActiveItem] = useState('Payroll');
+    // Set the default page to the new Dashboard
+    const [activeItem, setActiveItem] = useState('Dashboard');
     const [activeId, setActiveId] = useState(null);
     
     // --- STATE IS NOW LIFTED TO THE APP COMPONENT ---
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // This function fetches the master list of employees
     const fetchEmployees = useCallback(async () => {
         setLoading(true);
         try {
@@ -50,14 +51,15 @@ export default function App() {
         }
     }, []);
 
+    // Fetch the data when the application first loads
     useEffect(() => {
         fetchEmployees();
     }, [fetchEmployees]);
     
-    // This function now handles navigation AND triggers a data refresh
+    // This function now handles navigation AND triggers a data refresh when needed
     const handleNavigation = (page, id = null) => {
-        // If we are coming back from the form, refresh the data
-        if (page === 'Payroll' || page === 'Employees') {
+        // If we are coming back from a form to a list view, refresh the data
+        if (page === 'Payroll' || page === 'Employees' || page === 'Dashboard') {
             fetchEmployees();
         }
         setActiveId(id);
