@@ -18,6 +18,18 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    position: {
+        type: String,
+        default: 'Manager'
+    },
+    department: {
+        type: String,
+        default: 'Administration'
+    },
+    phone: {
+        type: String,
+        default: ''
+    }
 }, { timestamps: true });
 
 const User = mongoose.model('User', UserSchema);

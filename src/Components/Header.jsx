@@ -2,7 +2,17 @@ import React from 'react';
 import Icon from './Icon';
 import { ICONS } from '../icons';
 
-const Header = () => {
+const Header = ({ user }) => {
+
+    const getInitials = (name) => {
+        if (!name) return '';
+        const nameParts = name.split(' ');
+        if (nameParts.length > 1) {
+            return `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase();
+        }
+        return name.substring(0, 2).toUpperCase();
+    };
+
     return (
         <header className="bg-white/70 backdrop-blur-lg sticky top-0 z-10 p-4 border-b border-slate-200">
             <div className="flex items-center justify-between">
@@ -21,7 +31,6 @@ const Header = () => {
                 {/* User Profile & Notifications */}
                 <div className="flex items-center space-x-6">
                     <div className="relative">
-                        {/* --- MODIFIED ICON --- */}
                         <svg 
                             className="w-6 h-6 text-slate-500 hover:text-slate-700" 
                             xmlns="http://www.w3.org/2000/svg" 
@@ -39,11 +48,11 @@ const Header = () => {
                     </div>
                     <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-white">
-                            JA
+                            {user ? getInitials(user.fullName) : '...'}
                         </div>
                         <div>
-                            <p className="font-semibold text-sm text-slate-800">John Admin</p>
-                            <p className="text-xs text-slate-500">HR Manager</p>
+                            <p className="font-semibold text-sm text-slate-800">{user ? user.fullName : 'Loading...'}</p>
+                            <p className="text-xs text-slate-500">{user ? user.position : 'Loading...'}</p>
                         </div>
                     </div>
                 </div>

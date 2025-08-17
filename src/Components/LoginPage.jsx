@@ -4,6 +4,7 @@ import { ICONS } from '../icons';
 
 const LoginPage = ({ setToken }) => {
     const [isSignUp, setIsSignUp] = useState(false);
+    const [error, setError] = useState(''); // State to hold error messages
     const [formData, setFormData] = useState({
         fullName: '',
         company: '',
@@ -14,8 +15,15 @@ const LoginPage = ({ setToken }) => {
 
     const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
+    const handleTabChange = (signUp) => {
+        setIsSignUp(signUp);
+        setError(''); // Clear errors when switching tabs
+        setFormData({ fullName: '', company: '', email: '', password: '' }); // Reset form
+    };
+
     const onSubmit = async e => {
         e.preventDefault();
+        setError(''); // Clear previous errors on a new submission
         const url = isSignUp ? '/api/auth/register' : '/api/auth/login';
         const body = isSignUp ? { fullName, company, email, password } : { email, password };
 
@@ -30,10 +38,10 @@ const LoginPage = ({ setToken }) => {
                 localStorage.setItem('token', data.token);
                 setToken(data.token);
             } else {
-                alert(data.msg || 'An error occurred.');
+                setError(data.msg || 'An error occurred.'); // Set the error message from the backend
             }
         } catch (err) {
-            alert('Server error. Please try again later.');
+            setError('Server error. Please try again later.'); // Set a generic server error
         }
     };
 
@@ -52,10 +60,10 @@ const LoginPage = ({ setToken }) => {
                 <p className="text-center text-gray-500 mb-6">Access your payroll management dashboard</p>
 
                 <div className="flex bg-gray-100 rounded-full p-1 mb-6">
-                    <button onClick={() => setIsSignUp(false)} className={`w-1/2 py-2 rounded-full font-semibold transition-colors ${!isSignUp ? 'bg-white shadow' : 'text-gray-600'}`}>
+                    <button onClick={() => handleTabChange(false)} className={`w-1/2 py-2 rounded-full font-semibold transition-colors ${!isSignUp ? 'bg-white shadow' : 'text-gray-600'}`}>
                         Sign In
                     </button>
-                    <button onClick={() => setIsSignUp(true)} className={`w-1/2 py-2 rounded-full font-semibold transition-colors ${isSignUp ? 'bg-white shadow' : 'text-gray-600'}`}>
+                    <button onClick={() => handleTabChange(true)} className={`w-1/2 py-2 rounded-full font-semibold transition-colors ${isSignUp ? 'bg-white shadow' : 'text-gray-600'}`}>
                         Sign Up
                     </button>
                 </div>
@@ -69,6 +77,9 @@ const LoginPage = ({ setToken }) => {
                     )}
                     <InputField name="email" type="email" value={email} onChange={onChange} placeholder="admin@company.com" icon={ICONS.mail} label="Email" />
                     <InputField name="password" type="password" value={password} onChange={onChange} placeholder="Enter your password" icon={ICONS.lock} label="Password" />
+
+                    {/* Display the error message here */}
+                    {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
                     <button type="submit" className="w-full py-3 mt-4 font-semibold text-white bg-gradient-to-r from-teal-400 to-green-500 rounded-lg shadow-md hover:from-teal-500 hover:to-green-600 transition-all">
                         {isSignUp ? 'Create Account' : 'Sign In'}
