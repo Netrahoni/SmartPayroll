@@ -1,21 +1,22 @@
 import React from 'react';
-import Icon from './Icon';
+import { Icon } from './Icon.jsx'; // Use named import
 
 const MetricCard = ({ title, value, icon, color }) => {
   const colorClasses = {
-    blue: 'bg-blue-100 text-blue-600',
-    green: 'bg-green-100 text-green-600',
-    red: 'bg-red-100 text-red-600',
+    blue: 'text-blue-500 bg-blue-100',
+    green: 'text-green-500 bg-green-100',
+    red: 'text-red-500 bg-red-100',
+    indigo: 'text-indigo-500 bg-indigo-100',
   };
 
   return (
-    <div className="bg-white p-4 rounded-xl shadow-sm flex items-center space-x-4">
-      <div className={`p-3 rounded-full ${colorClasses[color]}`}>
+    <div className="bg-white p-5 rounded-xl border border-gray-200/80 shadow-sm flex items-start gap-4">
+      <div className={`p-2 rounded-lg ${colorClasses[color] || 'bg-gray-100'}`}>
         <Icon path={icon} className="w-6 h-6" />
       </div>
-      <div>
-        <p className="text-sm text-gray-500">{title}</p>
-        <p className="text-xl font-semibold text-gray-800">{value}</p>
+      <div className="flex flex-col">
+        <p className="text-sm text-gray-500 font-medium">{title}</p>
+        <p className="text-2xl font-bold text-gray-800 mt-1">{value}</p>
       </div>
     </div>
   );

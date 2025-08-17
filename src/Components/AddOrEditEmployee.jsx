@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
-import Icon from './Icon';
-import { ICONS } from '../icons';
-import { format } from 'date-fns';
+import { Icon } from './Icon.jsx'; // Corrected import
+import { ICONS } from '../icons.jsx';
+import { useNotifications } from '../context/NotificationContext.jsx';
 
 const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
+    const { addNotification } = useNotifications();
     const initialEmployeeState = {
         employeeName: '', address: '', postalCode: '', gender: 'Male',
         department: 'Engineering', position: 'Senior Developer', payPeriod: 'Monthly', nextPayDate: new Date(),
         basicSalary: 0, otherPayment: 0, overtimeHours: 0, hourlyRate: 0, studentLoan: 0,
         taxCode: '1257L', sin: '', niCode: 'A',
         taxablePay: 0, pensionPay: 0, niPayment: 0, taxPayment: 0, netPay: 0,
-        status: 'Active', // Added status for consistency
+        status: 'Active',
     };
 
     const [employeeData, setEmployeeData] = useState(initialEmployeeState);
@@ -37,8 +38,6 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
                 try {
                     const response = await fetch(`http://localhost:5000/api/employees/${employeeId}`);
                     const data = await response.json();
-                    // --- THIS IS THE FIX ---
-                    // Merge fetched data with the initial state to ensure no fields are undefined
                     setEmployeeData({ ...initialEmployeeState, ...data, nextPayDate: new Date(data.nextPayDate) });
                 } catch (error) {
                     console.error("Failed to fetch employee:", error);
@@ -81,7 +80,7 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
             taxPayment: tax.toFixed(2),
             netPay: net.toFixed(2),
         }));
-        alert("Payroll calculated successfully!");
+        addNotification("Payroll calculated successfully for the current view.");
     };
 
     const handleSaveRecord = async () => {
@@ -100,10 +99,11 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
                 const errorData = await response.json();
                 throw new Error(errorData.msg || 'Failed to save record');
             }
-            alert(`Employee record ${isEditMode ? 'updated' : 'saved'} successfully!`);
+            const successMessage = `Employee record for ${employeeData.employeeName} ${isEditMode ? 'updated' : 'saved'}.`;
+            addNotification(successMessage);
             onNavigate('Payroll');
         } catch (error) {
-            alert(`Error: ${error.message}`);
+            addNotification(`Error: ${error.message}`);
         }
     };
 
@@ -236,7 +236,6 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
                     <section>
                         <h3 className="text-lg font-semibold border-b pb-2 mb-4 text-gray-700">Payroll Calculation</h3>
                          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            {/* --- MODIFIED TAX PERIOD FIELD --- */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-600">Tax Period</label>
                                 <DatePicker

@@ -1,74 +1,44 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import PageHeader from './PageHeader';
 import Card from './Card';
-import Icon from './Icon';
-import { ICONS } from '../icons';
-
-// PDF and Date Picker Libraries
+import { Icon } from './Icon.jsx'; // Corrected import
+import { ICONS } from '../icons.jsx';
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable'; // <--- CORRECTED IMPORT
+import autoTable from 'jspdf-autotable';
 import DatePicker from 'react-datepicker';
 import { format } from 'date-fns';
+import { useNotifications } from '../context/NotificationContext.jsx';
 
-// A custom component to make the DatePicker look like the info card
 const CustomDatePickerInput = React.forwardRef(({ value, onClick }, ref) => (
     <button className="text-lg font-bold text-gray-800 bg-transparent text-left w-full" onClick={onClick} ref={ref}>
         {value}
     </button>
 ));
 
-const Payroll = ({ onNavigate }) => {
-    // --- STATE MANAGEMENT ---
-    const [employees, setEmployees] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState("");
+const Payroll = ({ onNavigate, employees, fetchEmployees, globalSearchQuery }) => {
+    const { addNotification } = useNotifications();
+    const [loading, setLoading] = useState(false);
     const [payPeriodFilter, setPayPeriodFilter] = useState('All Periods');
     const [nextPayDate, setNextPayDate] = useState(new Date());
-    const INCOME_TAX_RATE = 0.15;
-    const CPP_RATE = 0.0595;
-    const EI_RATE = 0.0158;
 
-    // --- DATA FETCHING ---
-    const fetchEmployees = useCallback(async () => {
-        setLoading(true);
-        try {
-            const response = await fetch('http://localhost:5000/api/employees');
-            if (!response.ok) throw new Error('Failed to fetch data');
-            const data = await response.json();
-            setEmployees(data);
-        } catch (error) {
-            console.error("Error fetching employees:", error);
-            alert("Could not fetch employee data. Please ensure the backend server is running.");
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchEmployees();
-    }, [fetchEmployees]);
-
-    // --- DYNAMIC FILTERING LOGIC ---
     const filteredEmployees = useMemo(() => {
         return employees.filter(emp => {
             const matchesPayPeriod = payPeriodFilter === 'All Periods' || emp.payPeriod === payPeriodFilter;
-            const matchesSearch = searchQuery === "" ||
-                emp.employeeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                emp.position.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesSearch = globalSearchQuery === "" ||
+                emp.employeeName.toLowerCase().includes(globalSearchQuery.toLowerCase()) ||
+                emp.position.toLowerCase().includes(globalSearchQuery.toLowerCase());
             return matchesPayPeriod && matchesSearch;
         });
-    }, [employees, payPeriodFilter, searchQuery]);
+    }, [employees, payPeriodFilter, globalSearchQuery]);
 
-
-    // --- PAYROLL & PDF FUNCTIONS ---
-    const handleRunPayroll = () => alert("This would trigger a backend process to finalize payroll for the selected period, generate records, and queue payments.");
+    const handleRunPayroll = () => addNotification("Payroll run process initiated for the selected period.");
 
     const handleDownloadFullReport = () => {
         if (filteredEmployees.length === 0) {
-            alert("No employees match the current filters to generate a report.");
+            addNotification("No employees match filters to generate a report.", "warning");
             return;
         }
-        alert("Generating full payroll PDF report...");
+        addNotification("Generating full payroll PDF report...");
         
         const doc = new jsPDF();
         const tableColumn = ["ID", "Employee", "Position", "Gross Pay", "Taxes", "Net Pay"];
@@ -97,9 +67,7 @@ const Payroll = ({ onNavigate }) => {
         doc.setFontSize(11);
         doc.text(`Period Filter: ${payPeriodFilter}`, 14, 30);
         doc.text(`Date Generated: ${format(new Date(), 'MMM dd, yyyy')}`, 14, 36);
-
-        autoTable(doc, { startY: 50, head: [tableColumn], body: tableRows }); // <-- CORRECTED FUNCTION CALL
-
+        autoTable(doc, { startY: 50, head: [tableColumn], body: tableRows });
         const finalY = (doc).lastAutoTable.finalY;
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
@@ -108,13 +76,12 @@ const Payroll = ({ onNavigate }) => {
         doc.text(`Total Gross Pay: ${formatCurrency(totalGross)}`, 14, finalY + 22);
         doc.text(`Total Taxes: ${formatCurrency(totalTaxes)}`, 14, finalY + 28);
         doc.text(`Total Net Pay: ${formatCurrency(totalNet)}`, 14, finalY + 34);
-
         doc.save(`Payroll-Report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
     };
 
     const handleGeneratePayStub = (employee) => {
-        if (!employee) return alert("Cannot generate stub for an invalid employee.");
-        alert(`Generating pay stub for ${employee.employeeName}...`);
+        if (!employee) return addNotification("Cannot generate stub for invalid employee.", "error");
+        addNotification(`Generating pay stub for ${employee.employeeName}...`);
         
         try {
             const doc = new jsPDF();
@@ -125,15 +92,12 @@ const Payroll = ({ onNavigate }) => {
             const totalTaxes = incomeTax + cpp + ei;
             const netPay = (employee.netPay || 0);
 
-            // Header
             doc.setFontSize(22);
             doc.setFont('helvetica', 'bold');
             doc.text("SmartPayroll Inc.", 14, 20);
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');
             doc.text("12 Km Stone, NH-3, Grand Trunk Road, Meharbanpur, Punjab 143109", 14, 26);
-
-            // Pay Stub Details
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
             doc.text("Pay Stub Detail", 150, 40);
@@ -141,8 +105,6 @@ const Payroll = ({ onNavigate }) => {
             doc.setFont('helvetica', 'normal');
             doc.text(`PAY DATE: ${format(new Date(employee.nextPayDate), 'MM/dd/yyyy')}`, 150, 46);
             doc.text(`NET PAY: ${formatCurrency(netPay)}`, 150, 52);
-
-            // Employee & Pay Period Info
             doc.line(14, 60, 200, 60);
             doc.setFontSize(11);
             doc.setFont('helvetica', 'bold');
@@ -158,79 +120,38 @@ const Payroll = ({ onNavigate }) => {
             doc.text(`Total Hours: ${(employee.overtimeHours || 0).toFixed(2)}`, 120, 80);
             doc.line(14, 90, 200, 90);
 
-            // Earnings & Taxes Tables
-            autoTable(doc, { // <-- CORRECTED FUNCTION CALL
-                startY: 95,
-                head: [['Earnings', 'Current']],
-                body: [
-                    ['Basic Salary', formatCurrency(employee.basicSalary)],
-                    ['Other Payments', formatCurrency(employee.otherPayment)],
-                    ['Overtime', formatCurrency((employee.overtimeHours || 0) * (employee.hourlyRate || 0))]
-                ],
-                theme: 'striped',
-                headStyles: { fillColor: [41, 128, 185] }
-            });
-
-            autoTable(doc, { // <-- CORRECTED FUNCTION CALL
-                startY: (doc).lastAutoTable.finalY + 5,
-                head: [['Deductions & Taxes', 'Current']],
-                body: [
-                    ['Income Tax', formatCurrency(incomeTax)],
-                    ['Pension (CPP)', formatCurrency(cpp)],
-                    ['NI Payment (EI)', formatCurrency(ei)],
-                    ['Student Loan', formatCurrency(employee.studentLoan)]
-                ],
-                theme: 'striped',
-                headStyles: { fillColor: [231, 76, 60] }
-            });
-
-            // Summary
+            autoTable(doc, { startY: 95, head: [['Earnings', 'Current']], body: [['Basic Salary', formatCurrency(employee.basicSalary)], ['Other Payments', formatCurrency(employee.otherPayment)], ['Overtime', formatCurrency((employee.overtimeHours || 0) * (employee.hourlyRate || 0))]], theme: 'striped', headStyles: { fillColor: [41, 128, 185] } });
+            autoTable(doc, { startY: (doc).lastAutoTable.finalY + 5, head: [['Deductions & Taxes', 'Current']], body: [['Income Tax', formatCurrency(incomeTax)], ['Pension (CPP)', formatCurrency(cpp)], ['NI Payment (EI)', formatCurrency(ei)], ['Student Loan', formatCurrency(employee.studentLoan)]], theme: 'striped', headStyles: { fillColor: [231, 76, 60] } });
             const finalY = (doc).lastAutoTable.finalY + 10;
             doc.setFontSize(11);
             doc.setFont('helvetica', 'bold');
             doc.text("SUMMARY", 150, finalY);
-            autoTable(doc, { // <-- CORRECTED FUNCTION CALL
-                startY: finalY + 5,
-                body: [
-                    ['Gross Pay', formatCurrency(grossPay)],
-                    ['Total Taxes & Deductions', `-${formatCurrency(totalTaxes + (employee.studentLoan || 0))}`],
-                    ['Net Pay', formatCurrency(netPay)],
-                ],
-                theme: 'plain',
-                styles: { cellPadding: 2, fontSize: 10 },
-                columnStyles: { 0: { fontStyle: 'bold' } },
-                margin: { left: 130 }
-            });
-
+            autoTable(doc, { startY: finalY + 5, body: [['Gross Pay', formatCurrency(grossPay)], ['Total Taxes & Deductions', `-${formatCurrency(totalTaxes + (employee.studentLoan || 0))}`], ['Net Pay', formatCurrency(netPay)]], theme: 'plain', styles: { cellPadding: 2, fontSize: 10 }, columnStyles: { 0: { fontStyle: 'bold' } }, margin: { left: 130 } });
             doc.save(`Pay-Stub-${employee.employeeName.replace(' ', '-')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
         } catch(error) {
-            console.error("Pay Stub Generation Error:", error);
-            alert("An error occurred while generating the pay stub.");
+            addNotification("Error generating pay stub.", "error");
         }
     };
 
-    // --- CRUD FUNCTIONS ---
     const handleDelete = async (employeeId) => {
         if (!window.confirm("Are you sure you want to permanently delete this employee?")) return;
         try {
+            const employeeToDelete = employees.find(emp => emp._id === employeeId);
             const response = await fetch(`http://localhost:5000/api/employees/${employeeId}`, { method: 'DELETE' });
             if (!response.ok) throw new Error('Delete request failed');
-            setEmployees(currentEmployees => currentEmployees.filter(emp => emp._id !== employeeId));
-            alert("Employee deleted successfully.");
+            addNotification(`Employee "${employeeToDelete?.employeeName}" was deleted.`);
+            fetchEmployees();
         } catch (error) {
-            console.error("Error deleting employee:", error);
-            alert("Failed to delete employee.");
+            addNotification("Failed to delete employee.", "error");
             fetchEmployees();
         }
     };
     
     const handleEdit = (employeeId) => onNavigate('AddOrEditEmployee', employeeId);
-
-    // --- HELPER ---
     const formatCurrency = (amount) => `$${(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
     return (
-        <div className="p-8">
+        <div>
             <PageHeader
                 title="Hamro Payroll System"
                 action={
@@ -292,18 +213,6 @@ const Payroll = ({ onNavigate }) => {
             <Card>
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold text-gray-700">Employee Payroll Records</h2>
-                    <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Icon path={ICONS.search} className="w-5 h-5 text-gray-400" />
-                        </div>
-                        <input
-                            type="text"
-                            placeholder="Search employees..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
-                        />
-                    </div>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">

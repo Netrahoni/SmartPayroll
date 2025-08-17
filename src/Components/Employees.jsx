@@ -1,33 +1,29 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import PageHeader from './PageHeader';
 import Card from './Card';
-import Icon from './Icon';
+import { Icon } from './Icon.jsx'; // Corrected import
 import { ICONS } from '../icons';
 
-const Employees = ({ onNavigate, employees, fetchEmployees }) => {
-    // --- STATE MANAGEMENT ---
-    const [searchQuery, setSearchQuery] = useState("");
+const Employees = ({ onNavigate, employees, fetchEmployees, globalSearchQuery }) => {
     const [statusFilter, setStatusFilter] = useState("All");
     const [selectedEmployees, setSelectedEmployees] = useState(new Set());
 
-    // --- FILTERING AND SEARCHING (Now uses the 'employees' prop) ---
     const filteredEmployees = useMemo(() => {
         return employees.filter(emp => {
             const matchesStatus = statusFilter === 'All' || emp.status === statusFilter;
-            const matchesSearch = searchQuery === "" ||
-                emp.employeeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                emp.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                emp.department.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesSearch = globalSearchQuery === "" ||
+                emp.employeeName.toLowerCase().includes(globalSearchQuery.toLowerCase()) ||
+                emp.position.toLowerCase().includes(globalSearchQuery.toLowerCase()) ||
+                emp.department.toLowerCase().includes(globalSearchQuery.toLowerCase());
             return matchesStatus && matchesSearch;
         });
-    }, [employees, searchQuery, statusFilter]);
+    }, [employees, globalSearchQuery, statusFilter]);
 
-    // --- CRUD & ACTION FUNCTIONS ---
     const handleDelete = async (employeeId) => {
         if (!window.confirm("Are you sure you want to delete this employee?")) return;
         try {
             await fetch(`http://localhost:5000/api/employees/${employeeId}`, { method: 'DELETE' });
-            fetchEmployees(); // Use the passed-in function to refresh the master list in App.jsx
+            fetchEmployees();
         } catch (error) {
             console.error("Error deleting employee:", error);
         }
@@ -62,7 +58,6 @@ const Employees = ({ onNavigate, employees, fetchEmployees }) => {
         document.body.removeChild(link);
     };
     
-    // --- CHECKBOX HANDLING ---
     const handleSelectAll = (e) => {
         if (e.target.checked) {
             const allIds = new Set(filteredEmployees.map(emp => emp._id));
@@ -82,7 +77,6 @@ const Employees = ({ onNavigate, employees, fetchEmployees }) => {
         setSelectedEmployees(newSet);
     };
 
-    // --- UI COMPONENTS ---
     const StatusBadge = ({ status }) => {
         const baseClasses = "px-2.5 py-1 text-xs font-semibold rounded-full inline-block";
         const statusClasses = {
@@ -93,38 +87,26 @@ const Employees = ({ onNavigate, employees, fetchEmployees }) => {
     };
 
     return (
-        <div className="p-8 bg-gray-50 min-h-screen">
+        <div>
             <PageHeader title="Employee Management" />
-            
             <Card>
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
-                    <div className="relative w-full md:w-1/3">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Icon path={ICONS.search} className="w-5 h-5 text-gray-400" />
-                        </div>
-                        <input
-                            type="text"
-                            placeholder="Search employees..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg"
-                        />
-                    </div>
                     <div className="flex items-center gap-2">
-                        <select onChange={(e) => setStatusFilter(e.target.value)} value={statusFilter} className="p-2 border border-gray-300 rounded-lg bg-white text-sm">
+                        <select onChange={(e) => setStatusFilter(e.target.value)} value={statusFilter} className="p-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
                             <option value="All">Filter By Status</option>
                             <option value="Active">Active</option>
                             <option value="On Leave">On Leave</option>
                         </select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button onClick={handleExportData} className="flex items-center bg-gray-200 text-gray-800 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-300">
+                            Export Data
+                        </button>
                         <button onClick={() => onNavigate('AddOrEditEmployee')} className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-700">
                             <Icon path={ICONS.add} className="w-5 h-5 mr-2" />Add Employee
                         </button>
-                        <button onClick={handleExportData} className="flex items-center bg-gray-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-gray-800">
-                            Export Data
-                        </button>
                     </div>
                 </div>
-
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
@@ -140,8 +122,10 @@ const Employees = ({ onNavigate, employees, fetchEmployees }) => {
                             </tr>
                         </thead>
                         <tbody className="text-gray-700">
-                            {employees.length === 0 ? (
-                                <tr><td colSpan="6" className="text-center py-10">No employees found.</td></tr>
+                            {employees.length === 0 && filteredEmployees.length === 0 ? (
+                                <tr><td colSpan="6" className="text-center py-10">No employees found. Add one to get started.</td></tr>
+                            ) : filteredEmployees.length === 0 ? (
+                                <tr><td colSpan="6" className="text-center py-10">No employees match the current filter or search.</td></tr>
                             ) : (
                                 filteredEmployees.map((emp) => (
                                     <tr key={emp._id} className="border-b border-gray-200 hover:bg-gray-50">

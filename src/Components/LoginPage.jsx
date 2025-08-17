@@ -1,31 +1,29 @@
 import React, { useState } from 'react';
-import Icon from './Icon';
-import { ICONS } from '../icons';
+import { Icon } from './Icon.jsx'; // Corrected named import
+import { ICONS } from '../icons.jsx';
+import { useNotifications } from '../context/NotificationContext.jsx';
 
-const LoginPage = ({ setToken }) => {
+const LoginPage = ({ onLoginSuccess }) => {
+    const { addNotification } = useNotifications();
     const [isSignUp, setIsSignUp] = useState(false);
-    const [error, setError] = useState(''); // State to hold error messages
+    const [error, setError] = useState('');
     const [formData, setFormData] = useState({
-        fullName: '',
-        company: '',
-        email: '',
-        password: '',
+        firstName: '', lastName: '', company: '', email: '', password: '',
     });
-    const { fullName, company, email, password } = formData;
-
+    const { firstName, lastName, company, email, password } = formData;
     const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const handleTabChange = (signUp) => {
         setIsSignUp(signUp);
-        setError(''); // Clear errors when switching tabs
-        setFormData({ fullName: '', company: '', email: '', password: '' }); // Reset form
+        setError('');
+        setFormData({ firstName: '', lastName: '', company: '', email: '', password: '' });
     };
 
     const onSubmit = async e => {
         e.preventDefault();
-        setError(''); // Clear previous errors on a new submission
+        setError('');
         const url = isSignUp ? '/api/auth/register' : '/api/auth/login';
-        const body = isSignUp ? { fullName, company, email, password } : { email, password };
+        const body = isSignUp ? { firstName, lastName, company, email, password } : { email, password };
 
         try {
             const res = await fetch(`http://localhost:5000${url}`, {
@@ -35,13 +33,17 @@ const LoginPage = ({ setToken }) => {
             });
             const data = await res.json();
             if (res.ok) {
-                localStorage.setItem('token', data.token);
-                setToken(data.token);
+                if (isSignUp) {
+                    addNotification('Registration successful! Please sign in.');
+                    handleTabChange(false);
+                } else {
+                    onLoginSuccess(data.token, data.user);
+                }
             } else {
-                setError(data.msg || 'An error occurred.'); // Set the error message from the backend
+                setError(data.msg || 'An error occurred.');
             }
         } catch (err) {
-            setError('Server error. Please try again later.'); // Set a generic server error
+            setError('Server error. Please try again later.');
         }
     };
 
@@ -54,33 +56,26 @@ const LoginPage = ({ setToken }) => {
                 <h1 className="text-4xl font-bold">SmartPayroll</h1>
                 <p className="text-lg opacity-90">Admin Portal Access</p>
             </div>
-
             <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
                 <h2 className="text-2xl font-bold text-center text-gray-800">Welcome</h2>
                 <p className="text-center text-gray-500 mb-6">Access your payroll management dashboard</p>
-
                 <div className="flex bg-gray-100 rounded-full p-1 mb-6">
-                    <button onClick={() => handleTabChange(false)} className={`w-1/2 py-2 rounded-full font-semibold transition-colors ${!isSignUp ? 'bg-white shadow' : 'text-gray-600'}`}>
-                        Sign In
-                    </button>
-                    <button onClick={() => handleTabChange(true)} className={`w-1/2 py-2 rounded-full font-semibold transition-colors ${isSignUp ? 'bg-white shadow' : 'text-gray-600'}`}>
-                        Sign Up
-                    </button>
+                    <button onClick={() => handleTabChange(false)} className={`w-1/2 py-2 rounded-full font-semibold transition-colors ${!isSignUp ? 'bg-white shadow' : 'text-gray-600'}`}>Sign In</button>
+                    <button onClick={() => handleTabChange(true)} className={`w-1/2 py-2 rounded-full font-semibold transition-colors ${isSignUp ? 'bg-white shadow' : 'text-gray-600'}`}>Sign Up</button>
                 </div>
-
                 <form onSubmit={onSubmit} className="space-y-4">
                     {isSignUp && (
                         <>
-                            <InputField name="fullName" value={fullName} onChange={onChange} placeholder="John Doe" icon={ICONS.user} label="Full Name" />
+                            <div className="flex gap-4">
+                                <InputField name="firstName" value={firstName} onChange={onChange} placeholder="First Name" icon={ICONS.user} label="First Name" />
+                                <InputField name="lastName" value={lastName} onChange={onChange} placeholder="Last Name" icon={ICONS.user} label="Last Name" />
+                            </div>
                             <InputField name="company" value={company} onChange={onChange} placeholder="Company Name" icon={ICONS.office} label="Company" />
                         </>
                     )}
                     <InputField name="email" type="email" value={email} onChange={onChange} placeholder="admin@company.com" icon={ICONS.mail} label="Email" />
                     <InputField name="password" type="password" value={password} onChange={onChange} placeholder="Enter your password" icon={ICONS.lock} label="Password" />
-
-                    {/* Display the error message here */}
                     {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-
                     <button type="submit" className="w-full py-3 mt-4 font-semibold text-white bg-gradient-to-r from-teal-400 to-green-500 rounded-lg shadow-md hover:from-teal-500 hover:to-green-600 transition-all">
                         {isSignUp ? 'Create Account' : 'Sign In'}
                     </button>
@@ -91,7 +86,7 @@ const LoginPage = ({ setToken }) => {
 };
 
 const InputField = ({ label, icon, ...props }) => (
-    <div>
+    <div className="w-full">
         <label className="text-sm font-medium text-gray-700">{label}</label>
         <div className="relative mt-1">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

@@ -1,10 +1,8 @@
 import React from 'react';
 
-// Icon component for easily rendering SVG icons
-const Icon = ({ path, className = 'w-6 h-6' }) => (
+// Using a named export is more explicit and avoids import issues.
+export const Icon = ({ path, className = 'w-6 h-6' }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className}>
     <path d={path} />
   </svg>
 );
-
-export default Icon;

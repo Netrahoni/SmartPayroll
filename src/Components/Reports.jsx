@@ -4,7 +4,6 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import PageHeader from './PageHeader';
 import Card from './Card';
 
-
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const Reports = () => {

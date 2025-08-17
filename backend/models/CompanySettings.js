@@ -6,7 +6,8 @@ const companySettingsSchema = new mongoose.Schema({
     companyPhone: { type: String, default: '123-456-7890' },
     companyAddress: { type: String, default: '123 Main St, Anytown, CA 12345' },
     timezone: { type: String, default: 'PST' },
-    workStartTime: { type: String, default: '09:00' },
+    // Corrected to 24-hour format
+    workStartTime: { type: String, default: '09:00' }, 
     workEndTime: { type: String, default: '17:00' },
     currency: { type: String, default: 'CAD' },
     payrollFrequency: { type: String, default: 'Bi-Weekly' },
