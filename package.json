@@ -11,10 +11,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "chart.js": "^4.4.3",
     "cors": "^2.8.5",
     "date-fns": "^3.6.0",
     "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "mongoose": "^8.4.1",

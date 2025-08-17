@@ -1,61 +1,44 @@
 import React, { useState, useEffect } from 'react';
+import PageHeader from './PageHeader';
+import Card from './Card';
+import Icon from './Icon';
+import { ICONS } from '../icons';
 
-// --- SVG ICONS ---
-// A collection of SVG paths for the icons used in the settings page.
-const ICONS = {
-  user: "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z",
-  lock: "M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z",
-  office: "M4 6h16v2H4zm0 3h16v2H4zm0 3h16v2H4zm0 3h16v2H4zM2 4c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V4z",
-  bell: "M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"
+// Main Settings Component
+const Settings = () => {
+    const [activeTab, setActiveTab] = useState('Profile');
+
+    const renderContent = () => {
+        switch (activeTab) {
+            case 'Profile': return <ProfileSettings />;
+            case 'Security': return <SecuritySettings />;
+            case 'Company': return <CompanySettings />;
+            case 'Notifications': return <NotificationSettings />;
+            default: return <ProfileSettings />;
+        }
+    };
+
+    return (
+        <div className="p-8 bg-slate-50 min-h-screen font-['Inter',_sans-serif]">
+            <PageHeader title="Settings" subtitle="Manage your account and company settings" />
+
+            {/* --- TABS --- */}
+            <div className="mb-6 border-b border-slate-200">
+                <nav className="-mb-px flex space-x-8">
+                    <TabButton name="Profile" activeTab={activeTab} setActiveTab={setActiveTab} />
+                    <TabButton name="Security" activeTab={activeTab} setActiveTab={setActiveTab} />
+                    <TabButton name="Company" activeTab={activeTab} setActiveTab={setActiveTab} />
+                    <TabButton name="Notifications" activeTab={activeTab} setActiveTab={setActiveTab} />
+                </nav>
+            </div>
+
+            {renderContent()}
+        </div>
+    );
 };
-
-// --- Reusable Generic Components ---
-
-/**
- * Icon Component
- * Renders an SVG icon from a given path.
- * @param {string} path - The SVG path data.
- * @param {string} className - Additional CSS classes for styling.
- */
-const Icon = ({ path, className = 'w-6 h-6' }) => (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-        <path d={path}></path>
-    </svg>
-);
-
-/**
- * PageHeader Component
- * Displays the main title and subtitle for a page.
- * @param {string} title - The main heading.
- * @param {string} subtitle - The text below the main heading.
- */
-const PageHeader = ({ title, subtitle }) => (
-    <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-800">{title}</h1>
-        <p className="text-slate-500 mt-1">{subtitle}</p>
-    </div>
-);
-
-/**
- * Card Component
- * A container component with a card-like appearance.
- * @param {React.ReactNode} children - The content to be displayed inside the card.
- */
-const Card = ({ children }) => (
-    <div className="bg-white rounded-lg shadow-md p-6">
-        {children}
-    </div>
-);
 
 // --- Reusable Helper Components ---
 
-/**
- * TabButton Component
- * A button used for tab navigation.
- * @param {string} name - The name of the tab.
- * @param {string} activeTab - The currently active tab.
- * @param {Function} setActiveTab - Function to set the active tab.
- */
 const TabButton = ({ name, activeTab, setActiveTab }) => (
     <button
         onClick={() => setActiveTab(name)}
@@ -69,12 +52,6 @@ const TabButton = ({ name, activeTab, setActiveTab }) => (
     </button>
 );
 
-/**
- * InputField Component
- * A labeled text input field.
- * @param {string} label - The label for the input.
- * @param {string} name - The name attribute for the input.
- */
 const InputField = ({ label, name, ...props }) => (
     <div>
         <label htmlFor={name} className="block text-sm font-medium text-gray-700">{label}</label>
@@ -82,13 +59,6 @@ const InputField = ({ label, name, ...props }) => (
     </div>
 );
 
-/**
- * SelectField Component
- * A labeled select dropdown.
- * @param {string} label - The label for the select field.
- * @param {string} name - The name attribute for the select field.
- * @param {React.ReactNode} children - The option elements.
- */
 const SelectField = ({ label, name, children, ...props }) => (
      <div>
         <label htmlFor={name} className="block text-sm font-medium text-gray-700">{label}</label>
@@ -98,14 +68,6 @@ const SelectField = ({ label, name, children, ...props }) => (
     </div>
 );
 
-/**
- * ToggleSwitch Component
- * A simple on/off toggle switch.
- * @param {string} label - The main label for the toggle.
- * @param {string} description - A short description of the setting.
- * @param {boolean} enabled - The current state of the switch.
- * @param {Function} setEnabled - Function to update the switch's state.
- */
 const ToggleSwitch = ({ label, description, enabled, setEnabled }) => (
     <div className="flex items-center justify-between">
         <div>
@@ -136,12 +98,12 @@ const ProfileSettings = () => {
             </div>
             <form className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <InputField label="Display Name" name="displayName" placeholder="" />
-                    <InputField label="Email" name="email" type="email" placeholder="" disabled />
+                    <InputField label="Display Name" name="displayName" placeholder="John Admin" />
+                    <InputField label="Email" name="email" type="email" placeholder="admin@company.ca" disabled />
                     <InputField label="Phone Number" name="phone" type="tel" placeholder="Enter your phone number" />
-                    <InputField label="Department" name="department" placeholder="" />
+                    <InputField label="Department" name="department" placeholder="HR" />
                 </div>
-                <InputField label="Position" name="position" placeholder="" />
+                <InputField label="Position" name="position" placeholder="HR Manager" />
                 <div className="flex justify-end pt-2">
                     <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-700">Update Profile</button>
                 </div>
@@ -173,23 +135,8 @@ const SecuritySettings = () => {
 };
 
 const CompanySettings = () => {
-    const [settings, setSettings] = useState({
-        companyName: 'Example Corp',
-        companyEmail: 'contact@example.com',
-        companyPhone: '123-456-7890',
-        timezone: 'PST',
-        workStartTime: '09:00',
-        workEndTime: '17:00',
-        currency: 'CAD',
-        payrollFrequency: 'Bi-Weekly',
-        overtimeRateMultiplier: 1.5,
-        defaultBreakDuration: 60,
-        companyAddress: '123 Main St, Anytown, CA 12345'
-    });
+    const [settings, setSettings] = useState({});
     
-    // NOTE: The fetch logic has been commented out to work in this environment.
-    // You can uncomment it and point it to your actual API endpoint.
-    /*
     useEffect(() => {
         const fetchSettings = async () => {
             try {
@@ -202,7 +149,6 @@ const CompanySettings = () => {
         };
         fetchSettings();
     }, []);
-    */
 
     const handleChange = (e) => {
         setSettings({ ...settings, [e.target.name]: e.target.value });
@@ -210,10 +156,6 @@ const CompanySettings = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // NOTE: This is a mock submission handler.
-        console.log("Submitting company settings:", settings);
-        alert('Company settings updated! (Check console for data)');
-        /*
         try {
             await fetch('http://localhost:5000/api/settings/company', {
                 method: 'PUT',
@@ -224,7 +166,6 @@ const CompanySettings = () => {
         } catch (error) {
             alert('Failed to update settings.');
         }
-        */
     };
 
     return (
@@ -295,37 +236,4 @@ const NotificationSettings = () => {
     );
 };
 
-// Main App Component
-const App = () => {
-    const [activeTab, setActiveTab] = useState('Profile');
-
-    const renderContent = () => {
-        switch (activeTab) {
-            case 'Profile': return <ProfileSettings />;
-            case 'Security': return <SecuritySettings />;
-            case 'Company': return <CompanySettings />;
-            case 'Notifications': return <NotificationSettings />;
-            default: return <ProfileSettings />;
-        }
-    };
-
-    return (
-        <div className="p-4 sm:p-8 bg-slate-50 min-h-screen font-['Inter',_sans-serif]">
-            <PageHeader title="Settings" subtitle="Manage your account and company settings" />
-
-            {/* --- TABS --- */}
-            <div className="mb-6 border-b border-slate-200">
-                <nav className="-mb-px flex space-x-4 sm:space-x-8 overflow-x-auto">
-                    <TabButton name="Profile" activeTab={activeTab} setActiveTab={setActiveTab} />
-                    <TabButton name="Security" activeTab={activeTab} setActiveTab={setActiveTab} />
-                    <TabButton name="Company" activeTab={activeTab} setActiveTab={setActiveTab} />
-                    <TabButton name="Notifications" activeTab={activeTab} setActiveTab={setActiveTab} />
-                </nav>
-            </div>
-
-            {renderContent()}
-        </div>
-    );
-};
-
-export default App;
+export default Settings;
