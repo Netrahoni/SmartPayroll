@@ -1,18 +1,19 @@
 import React from 'react';
 import { Icon } from './Icon.jsx';
 import { ICONS } from '../icons.jsx';
+import logo from '../assets/smartpayroll-logo.png'; // Use your new PNG logo
 
 const Sidebar = ({ activeItem, setActiveItem, onLogout, isSidebarOpen }) => {
     const navItems = ['Dashboard', 'Employees', 'Payroll', 'Reports', 'Settings'];
+    
+    // A special icon for logout as it's not in the navItems array
+    ICONS.logout = "M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z";
 
     return (
         <aside className={`bg-slate-900 text-slate-300 flex flex-col h-screen shadow-2xl transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-64 p-4' : 'w-0 p-0 overflow-hidden'}`}>
             
-            <div className="flex items-center gap-3 mb-10 px-2">
-                <div className="p-2 bg-blue-600 rounded-lg">
-                    <Icon path={ICONS.payroll} className="w-6 h-6 text-white" />
-                </div>
-                <h1 className="text-xl font-bold text-white tracking-wide whitespace-nowrap">Smart Payroll</h1>
+            <div className="flex items-center justify-center mb-10 px-2">
+                 <img src={logo} alt="Smart Payroll Logo" className="w-40" />
             </div>
 
             <nav className="flex-grow">

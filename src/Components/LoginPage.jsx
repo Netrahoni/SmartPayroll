@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Icon } from './Icon.jsx'; // Corrected named import
+import { Icon } from './Icon.jsx';
 import { ICONS } from '../icons.jsx';
 import { useNotifications } from '../context/NotificationContext.jsx';
+import logo from '../assets/smartpayroll-logo.png'; // Use your new PNG logo
 
 const LoginPage = ({ onLoginSuccess }) => {
     const { addNotification } = useNotifications();
@@ -48,13 +49,9 @@ const LoginPage = ({ onLoginSuccess }) => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-teal-400 to-blue-500 p-4">
-            <div className="text-center mb-8 text-white">
-                <div className="inline-block p-4 bg-white bg-opacity-20 rounded-xl mb-4">
-                    <Icon path={ICONS.office} className="w-8 h-8" />
-                </div>
-                <h1 className="text-4xl font-bold">SmartPayroll</h1>
-                <p className="text-lg opacity-90">Admin Portal Access</p>
+        <div className="min-h-screen flex flex-col items-center justify-center bg-slate-100 p-4">
+            <div className="text-center mb-8">
+                <img src={logo} alt="Smart Payroll Logo" className="w-64 mx-auto" />
             </div>
             <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
                 <h2 className="text-2xl font-bold text-center text-gray-800">Welcome</h2>
@@ -76,7 +73,7 @@ const LoginPage = ({ onLoginSuccess }) => {
                     <InputField name="email" type="email" value={email} onChange={onChange} placeholder="admin@company.com" icon={ICONS.mail} label="Email" />
                     <InputField name="password" type="password" value={password} onChange={onChange} placeholder="Enter your password" icon={ICONS.lock} label="Password" />
                     {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-                    <button type="submit" className="w-full py-3 mt-4 font-semibold text-white bg-gradient-to-r from-teal-400 to-green-500 rounded-lg shadow-md hover:from-teal-500 hover:to-green-600 transition-all">
+                    <button type="submit" className="w-full py-3 mt-4 font-semibold text-white bg-gradient-to-r from-blue-500 to-lime-400 rounded-lg shadow-md hover:from-blue-600 hover:to-lime-500 transition-all">
                         {isSignUp ? 'Create Account' : 'Sign In'}
                     </button>
                 </form>
