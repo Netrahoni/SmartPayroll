@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import PageHeader from './PageHeader';
 import Card from './Card';
-import { Icon } from './Icon.jsx'; // Corrected import
+import { Icon } from './Icon.jsx';
 import { ICONS } from '../icons.jsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
