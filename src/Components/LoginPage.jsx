@@ -27,7 +27,7 @@ const LoginPage = ({ onLoginSuccess }) => {
         const body = isSignUp ? { firstName, lastName, company, email, password } : { email, password };
 
         try {
-            const res = await fetch(`http://localhost:5000${url}`, {
+            const res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body),

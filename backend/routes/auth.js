@@ -5,7 +5,7 @@ import User from '../models/User.js';
 import auth from '../middleware/auth.js';
 
 const router = express.Router();
-const JWT_SECRET = 'your_jwt_secret_key';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // @route   POST api/auth/register
 router.post('/register', async (req, res) => {

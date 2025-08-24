@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
-// Your MongoDB connection string
-const MONGO_URI = 'mongodb://localhost:27017/smartpayroll';
+const MONGO_URI = process.env.MONGO_URI;
 
 const connectDB = async () => {
   try {

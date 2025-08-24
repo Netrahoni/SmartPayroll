@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = 'your_jwt_secret_key'; // Make sure this is the same secret as in your auth.js
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export default function(req, res, next) {
     // Get token from header
