@@ -6,9 +6,13 @@
   "scripts": {
     "dev": "vite",
     "dev:backend": "nodemon --watch backend -r dotenv/config backend/server.js",
-    "build": "vite build",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:frontend": "vite build",
+    "build:backend": "echo 'Backend build step (if any)'",
+    "start": "node backend/server.js",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "npm install --prefix backend"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
