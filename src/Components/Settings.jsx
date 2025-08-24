@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNotifications } from '../context/NotificationContext.jsx';
-import { Icon } from './Icon.jsx'; // Corrected import
+import { Icon } from './Icon.jsx';
 import { ICONS } from '../icons.jsx';
 import PageHeader from './PageHeader.jsx';
 import Card from './Card.jsx';
+
 const TabButton = ({ name, activeTab, setActiveTab }) => (
     <button
         onClick={() => setActiveTab(name)}
@@ -78,7 +79,7 @@ const ProfileSettings = ({ user, setUser }) => {
         setMessage('');
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/auth/user', {
+            const res = await fetch('/api/auth/user', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                 body: JSON.stringify(formData)
@@ -147,7 +148,7 @@ const SecuritySettings = () => {
         }
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/auth/change-password', {
+            const res = await fetch('/api/auth/change-password', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                 body: JSON.stringify({ currentPassword, newPassword }),
@@ -172,9 +173,9 @@ const SecuritySettings = () => {
 
 const CompanySettings = () => {
     const [settings, setSettings] = useState({});
-    useEffect(() => { const fetchSettings = async () => { try { const res = await fetch('http://localhost:5000/api/settings/company'); const data = await res.json(); setSettings(data); } catch (error) { console.error("Failed to fetch company settings:", error); } }; fetchSettings(); }, []);
+    useEffect(() => { const fetchSettings = async () => { try { const res = await fetch('/api/settings/company'); const data = await res.json(); setSettings(data); } catch (error) { console.error("Failed to fetch company settings:", error); } }; fetchSettings(); }, []);
     const handleChange = (e) => { setSettings({ ...settings, [e.target.name]: e.target.value }); };
-    const handleSubmit = async (e) => { e.preventDefault(); try { await fetch('http://localhost:5000/api/settings/company', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings), }); alert('Company settings updated!'); } catch (error) { alert('Failed to update settings.'); } };
+    const handleSubmit = async (e) => { e.preventDefault(); try { await fetch('/api/settings/company', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings), }); alert('Company settings updated!'); } catch (error) { alert('Failed to update settings.'); } };
     return ( <Card><div className="flex items-center mb-6"><Icon path={ICONS.office} className="w-6 h-6 text-slate-500 mr-3" /><div><h3 className="text-lg font-semibold text-slate-800">Company Settings</h3><p className="text-sm text-slate-500">Configure company-wide settings.</p></div></div><form onSubmit={handleSubmit} className="space-y-6"><div className="grid grid-cols-1 md:grid-cols-2 gap-6"><InputField label="Company Name" name="companyName" value={settings.companyName || ''} onChange={handleChange} /><InputField label="Company Email" name="companyEmail" type="email" value={settings.companyEmail || ''} onChange={handleChange} /><InputField label="Company Phone" name="companyPhone" type="tel" value={settings.companyPhone || ''} onChange={handleChange} /><SelectField label="Timezone" name="timezone" value={settings.timezone || 'UTC'} onChange={handleChange}><option>UTC</option><option>PST</option><option>EST</option></SelectField><InputField label="Work Start Time" name="workStartTime" type="time" value={settings.workStartTime || '09:00'} onChange={handleChange} /><InputField label="Work End Time" name="workEndTime" type="time" value={settings.workEndTime || '17:00'} onChange={handleChange} /><SelectField label="Currency" name="currency" value={settings.currency || 'USD'} onChange={handleChange}><option value="USD">USD - US Dollar</option><option value="CAD">CAD - Canadian Dollar</option></SelectField><SelectField label="Payroll Frequency" name="payrollFrequency" value={settings.payrollFrequency || 'Monthly'} onChange={handleChange}><option>Weekly</option><option>Bi-Weekly</option><option>Monthly</option></SelectField><InputField label="Overtime Rate Multiplier" name="overtimeRateMultiplier" type="number" step="0.1" value={settings.overtimeRateMultiplier || 1.5} onChange={handleChange} /><InputField label="Default Break Duration (minutes)" name="defaultBreakDuration" type="number" value={settings.defaultBreakDuration || 60} onChange={handleChange} /></div><div><label className="block text-sm font-medium text-gray-700">Company Address</label><textarea name="companyAddress" value={settings.companyAddress || ''} onChange={handleChange} rows="3" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></textarea></div><div className="flex justify-end pt-2"><button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-700">Update Company Settings</button></div></form></Card> );
 };
 

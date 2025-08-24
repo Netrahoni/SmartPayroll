@@ -21,7 +21,8 @@ const AppContent = ({ user, setUser, onLogout }) => {
     const fetchEmployees = useCallback(async () => {
         const token = localStorage.getItem('token');
         try {
-            const res = await fetch(url, {
+            // Use relative path for API call
+            const response = await fetch('/api/employees', {
                 headers: { 'x-auth-token': token }
             });
             if (!response.ok) throw new Error('Failed to fetch employees');
@@ -97,7 +98,8 @@ export default function App() {
             const storedToken = localStorage.getItem('token');
             if (storedToken) {
                 try {
-                    const response = await fetch('http://localhost:5000/api/auth/user', {
+                    // Use relative path for API call
+                    const response = await fetch('/api/auth/user', {
                         headers: { 'x-auth-token': storedToken }
                     });
                     if (response.ok) {

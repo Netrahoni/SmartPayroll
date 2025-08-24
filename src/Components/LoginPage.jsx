@@ -27,6 +27,7 @@ const LoginPage = ({ onLoginSuccess }) => {
         const body = isSignUp ? { firstName, lastName, company, email, password } : { email, password };
 
         try {
+            // Use relative path for API call
             const res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

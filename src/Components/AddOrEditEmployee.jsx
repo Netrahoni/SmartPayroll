@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
-import { Icon } from './Icon.jsx'; // Corrected import
+import { Icon } from './Icon.jsx';
 import { ICONS } from '../icons.jsx';
 import { useNotifications } from '../context/NotificationContext.jsx';
 
@@ -23,7 +23,6 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
     useEffect(() => {
         const fetchAllEmployees = async () => {
             try {
-                // Fetch all employees for the dropdown selector
                 const response = await fetch('/api/employees');
                 const data = await response.json();
                 setAllEmployees(data);
@@ -37,7 +36,6 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
             setIsEditMode(true);
             const fetchEmployee = async () => {
                 try {
-                    // Fetch a specific employee's data for editing
                     const response = await fetch(`/api/employees/${employeeId}`);
                     const data = await response.json();
                     setEmployeeData({ ...initialEmployeeState, ...data, nextPayDate: new Date(data.nextPayDate) });
@@ -67,7 +65,6 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
     };
 
     const handleCalculatePay = () => {
-        // Calculation logic remains the same
         const grossPay = parseFloat(employeeData.basicSalary) + parseFloat(employeeData.otherPayment) + (parseFloat(employeeData.overtimeHours) * parseFloat(employeeData.hourlyRate));
         const taxable = grossPay > 12570 / 12 ? grossPay - (12570 / 12) : 0;
         const tax = taxable * 0.20;
@@ -88,7 +85,6 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
 
     const handleSaveRecord = async () => {
         const method = isEditMode ? 'PUT' : 'POST';
-        // Use relative URL for API calls
         const url = isEditMode
             ? `/api/employees/${employeeId}`
             : '/api/employees';
@@ -114,7 +110,6 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
     const handleReset = () => {
         if (isEditMode) {
             const fetchEmployee = async () => {
-                // Use relative URL for API calls
                 const response = await fetch(`/api/employees/${employeeId}`);
                 const data = await response.json();
                 setEmployeeData({ ...initialEmployeeState, ...data, nextPayDate: new Date(data.nextPayDate) });

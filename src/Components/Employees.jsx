@@ -22,7 +22,8 @@ const Employees = ({ onNavigate, employees, fetchEmployees, globalSearchQuery })
     const handleDelete = async (employeeId) => {
         if (!window.confirm("Are you sure you want to delete this employee?")) return;
         try {
-            await fetch(`http://localhost:5000/api/employees/${employeeId}`, { method: 'DELETE' });
+            // Use relative path for API call
+            await fetch(`/api/employees/${employeeId}`, { method: 'DELETE' });
             fetchEmployees();
         } catch (error) {
             console.error("Error deleting employee:", error);
