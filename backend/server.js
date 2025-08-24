@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv'; // Import dotenv
+import 'dotenv/config'; // Ensures process.env is populated
 import connectDB from './config/db.js';
 import employeeRoutes from './routes/employees.js';
 import payrollRoutes from './routes/payroll.js';
@@ -8,9 +8,6 @@ import taskRoutes from './routes/tasks.js';
 import reportRoutes from './routes/reports.js';
 import authRoutes from './routes/auth.js';
 import settingsRoutes from './routes/settings.js';
-
-// Configure dotenv to load variables from .env file
-dotenv.config();
 
 const app = express();
 
