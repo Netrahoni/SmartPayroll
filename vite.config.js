@@ -14,7 +14,7 @@ export default defineConfig({
       ],
     },
   },
-  // Add this server configuration
+  // Add this server configuration for local development
   server: {
     proxy: {
       // Proxy API requests to the backend server
