@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Icon } from './Icon.jsx';
 import { ICONS } from '../icons.jsx';
 import { useNotifications } from '../context/NotificationContext.jsx';
-import logo from '../assets/smartpayroll-logo.png'; // Use your new PNG logo
+import logo from '../assets/smartpayroll-logo.png'; 
 
 const LoginPage = ({ onLoginSuccess }) => {
     const { addNotification } = useNotifications();

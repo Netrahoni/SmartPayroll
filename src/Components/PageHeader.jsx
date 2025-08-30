@@ -1,7 +1,5 @@
 import React from 'react';
 
-// This version is flexible. It accepts a title and an 'action' prop,
-// which can be any JSX (like your buttons).
 const PageHeader = ({ title, action }) => {
   return (
     <div className="flex justify-between items-center mb-8">

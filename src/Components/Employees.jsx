@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import PageHeader from './PageHeader';
 import Card from './Card';
-import { Icon } from './Icon.jsx'; // Corrected import
+import { Icon } from './Icon.jsx'; 
 import { ICONS } from '../icons';
 
 const Employees = ({ onNavigate, employees, fetchEmployees, globalSearchQuery }) => {

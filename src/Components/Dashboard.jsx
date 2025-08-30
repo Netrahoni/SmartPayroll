@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import Card from './Card.jsx';
-import { Icon } from './Icon.jsx'; // Corrected named import
+import { Icon } from './Icon.jsx';
 import { ICONS } from '../icons.jsx';
 import MetricCard from './MetricCard.jsx';
 import {
