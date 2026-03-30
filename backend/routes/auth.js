@@ -12,15 +12,28 @@ const JWT_SECRET = process.env.JWT_SECRET;
 let transporterPromise = null;
 const getTransporter = () => {
     if (!transporterPromise) {
-        transporterPromise = nodemailer.createTestAccount().then(account => {
-            console.log('✅ Nodemailer Email Transporter Ready');
-            return nodemailer.createTransport({
-                host: account.smtp.host,
-                port: account.smtp.port,
-                secure: account.smtp.secure,
-                auth: { user: account.user, pass: account.pass }
+        if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+            // Use real production SMTP if credentials exist (e.g. Gmail App Password)
+            console.log('✅ Production SMTP Transporter Initialized');
+            transporterPromise = Promise.resolve(nodemailer.createTransport({
+                service: 'gmail', // or your email provider
+                auth: {
+                    user: process.env.SMTP_USER,
+                    pass: process.env.SMTP_PASS
+                }
+            }));
+        } else {
+            // Fallback to Ethereal Mail for isolated testing
+            transporterPromise = nodemailer.createTestAccount().then(account => {
+                console.log('✅ Nodemailer Ethereal Sandbox Ready');
+                return nodemailer.createTransport({
+                    host: account.smtp.host,
+                    port: account.smtp.port,
+                    secure: account.smtp.secure,
+                    auth: { user: account.user, pass: account.pass }
+                });
             });
-        });
+        }
     }
     return transporterPromise;
 };
