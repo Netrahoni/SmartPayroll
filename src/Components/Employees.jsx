@@ -4,9 +4,20 @@ import Card from './Card';
 import { Icon } from './Icon.jsx'; 
 import { ICONS } from '../icons';
 
+const initialPending = [
+    { id: 'p1', name: 'Jane Doe', email: 'jane@company.com', date: 'Just now' },
+    { id: 'p2', name: 'Alex Smith', email: 'alex.smith@company.com', date: '2 hours ago' }
+];
+
 const Employees = ({ onNavigate, employees, fetchEmployees, globalSearchQuery }) => {
     const [statusFilter, setStatusFilter] = useState("All");
     const [selectedEmployees, setSelectedEmployees] = useState(new Set());
+    const [pending, setPending] = useState(initialPending);
+
+    const handleApprove = (req) => {
+        setPending(p => p.filter(r => r.id !== req.id));
+        onNavigate('AddOrEditEmployee');
+    };
 
     const filteredEmployees = useMemo(() => {
         return employees.filter(emp => {
@@ -90,6 +101,28 @@ const Employees = ({ onNavigate, employees, fetchEmployees, globalSearchQuery })
     return (
         <div>
             <PageHeader title="Employee Management" />
+            
+            {pending.length > 0 && (
+                <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-5">
+                    <h3 className="text-blue-800 font-bold mb-3">Pending Access Requests ({pending.length})</h3>
+                    <p className="text-sm text-blue-600 mb-4">These employees have requested access to the Client Portal. Approve them to send their login credentials.</p>
+                    <div className="space-y-3">
+                        {pending.map(req => (
+                            <div key={req.id} className="flex items-center justify-between bg-white px-4 py-3 rounded-lg shadow-sm border border-blue-100">
+                                <div>
+                                    <p className="font-semibold text-gray-900">{req.name}</p>
+                                    <p className="text-sm text-gray-500">{req.email} • Requested {req.date}</p>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button onClick={() => setPending(p => p.filter(r => r.id !== req.id))} className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 transition-colors rounded-md font-medium">Decline</button>
+                                    <button onClick={() => handleApprove(req)} className="px-3 py-1.5 text-sm bg-blue-600 text-white hover:bg-blue-700 transition-colors rounded-md shadow-sm font-medium">Approve & Setup</button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <Card>
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
                     <div className="flex items-center gap-2">

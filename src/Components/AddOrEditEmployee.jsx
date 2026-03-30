@@ -22,8 +22,11 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
 
     useEffect(() => {
         const fetchAllEmployees = async () => {
+            const token = localStorage.getItem('token');
             try {
-                const response = await fetch('/api/employees');
+                const response = await fetch('/api/employees', {
+                    headers: { 'x-auth-token': token }
+                });
                 const data = await response.json();
                 setAllEmployees(data);
             } catch (error) {
@@ -32,11 +35,14 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
         };
         fetchAllEmployees();
 
-        if (employeeId) {
+        if (employeeId && typeof employeeId === 'string') {
             setIsEditMode(true);
             const fetchEmployee = async () => {
+                const token = localStorage.getItem('token');
                 try {
-                    const response = await fetch(`/api/employees/${employeeId}`);
+                    const response = await fetch(`/api/employees/${employeeId}`, {
+                        headers: { 'x-auth-token': token }
+                    });
                     const data = await response.json();
                     setEmployeeData({ ...initialEmployeeState, ...data, nextPayDate: new Date(data.nextPayDate) });
                 } catch (error) {
@@ -44,6 +50,9 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
                 }
             };
             fetchEmployee();
+        } else if (employeeId && typeof employeeId === 'object') {
+            setIsEditMode(false);
+            setEmployeeData({ ...initialEmployeeState, employeeName: employeeId.name });
         } else {
             setIsEditMode(false);
             setEmployeeData(initialEmployeeState);
@@ -90,9 +99,10 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
             : '/api/employees';
 
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(url, {
                 method,
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                 body: JSON.stringify(employeeData),
             });
             if (!response.ok) {
@@ -110,7 +120,10 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
     const handleReset = () => {
         if (isEditMode) {
             const fetchEmployee = async () => {
-                const response = await fetch(`/api/employees/${employeeId}`);
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/employees/${employeeId}`, {
+                    headers: { 'x-auth-token': token }
+                });
                 const data = await response.json();
                 setEmployeeData({ ...initialEmployeeState, ...data, nextPayDate: new Date(data.nextPayDate) });
             };

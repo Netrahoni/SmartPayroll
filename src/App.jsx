@@ -8,6 +8,11 @@ import Reports from './Components/Reports.jsx';
 import Settings from './Components/Settings.jsx';
 import AddOrEditEmployee from './Components/AddOrEditEmployee.jsx';
 import LoginPage from './Components/LoginPage.jsx';
+import Marketplace from './Components/Marketplace.jsx';
+import Onboarding from './Components/Onboarding.jsx';
+import TimeOff from './Components/TimeOff.jsx';
+import Expenses from './Components/Expenses.jsx';
+import Logs from './Components/Logs.jsx';
 
 const AppContent = ({ user, setUser, onLogout }) => {
     const [activeItem, setActiveItem] = useState('Dashboard');
@@ -55,18 +60,28 @@ const AppContent = ({ user, setUser, onLogout }) => {
             case 'Payroll':
                 return <Payroll onNavigate={handleNavigation} employees={employees} fetchEmployees={fetchEmployees} globalSearchQuery={globalSearchQuery} />;
             case 'Reports':
-                return <Reports onNavigate={handleNavigation} />;
+                return <Reports onNavigate={handleNavigation} employees={employees} />;
+            case 'Onboarding':
+                return <Onboarding employees={employees} />;
+            case 'TimeOff':
+                return <TimeOff employees={employees} />;
+            case 'Expenses':
+                return <Expenses employees={employees} />;
             case 'Settings':
                 return <Settings onNavigate={handleNavigation} user={user} setUser={setUser} />;
             case 'AddOrEditEmployee':
                 return <AddOrEditEmployee onNavigate={handleNavigation} employeeId={activeId} />;
+            case 'Marketplace':
+                return <Marketplace onNavigate={handleNavigation} />;
+            case 'Logs':
+                return <Logs />;
             default:
                 return <Dashboard onNavigate={handleNavigation} employees={employees} user={user} />;
         }
     };
 
     return (
-        <div className="flex bg-slate-100 font-sans h-screen">
+        <div className="flex font-sans h-screen" style={{ background: '#F8F9FB' }}>
             <Sidebar 
                 activeItem={activeItem} 
                 setActiveItem={handleNavigation} 
@@ -79,8 +94,9 @@ const AppContent = ({ user, setUser, onLogout }) => {
                     globalSearchQuery={globalSearchQuery} 
                     setGlobalSearchQuery={setGlobalSearchQuery}
                     toggleSidebar={toggleSidebar}
+                    activeItem={activeItem}
                 />
-                <main className="flex-1 p-8">
+                <main className="flex-1" style={{ padding: '32px 40px', overflowY: 'auto' }}>
                     <PageContent />
                 </main>
             </div>
