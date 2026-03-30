@@ -8,17 +8,22 @@ import nodemailer from 'nodemailer';
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Configure NodeMailer with Ethereal for test emails
-let transporter;
-nodemailer.createTestAccount().then(account => {
-    transporter = nodemailer.createTransport({
-        host: account.smtp.host,
-        port: account.smtp.port,
-        secure: account.smtp.secure,
-        auth: { user: account.user, pass: account.pass }
-    });
-    console.log('✅ Nodemailer Email Transporter Ready');
-}).catch(console.error);
+// Configure NodeMailer with lazy initialization for Vercel serverless environments
+let transporterPromise = null;
+const getTransporter = () => {
+    if (!transporterPromise) {
+        transporterPromise = nodemailer.createTestAccount().then(account => {
+            console.log('✅ Nodemailer Email Transporter Ready');
+            return nodemailer.createTransport({
+                host: account.smtp.host,
+                port: account.smtp.port,
+                secure: account.smtp.secure,
+                auth: { user: account.user, pass: account.pass }
+            });
+        });
+    }
+    return transporterPromise;
+};
 
 // Password strength validator
 const isStrongPassword = (pwd) => {
@@ -36,8 +41,7 @@ router.post('/send-otp', async (req, res) => {
     if (!email) return res.status(400).json({ msg: 'Email is required' });
     
     try {
-        if (!transporter) return res.status(503).json({ msg: 'Email service initializing, please try again in a few seconds.' });
-        
+        const transporter = await getTransporter();
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         
         const info = await transporter.sendMail({
