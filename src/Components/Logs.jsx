@@ -41,7 +41,7 @@ const Logs = () => {
     return (
         <div>
             <PageHeader title="System Logs" />
-            <p className="text-gray-500 mb-6 text-sm">Review all activities, events, and security logs across the Smart Payroll platform.</p>
+            <p className="text-gray-500 mb-6 text-sm">Review all activities, events, and security logs across the HamroPayroll platform.</p>
             
             <Card>
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">

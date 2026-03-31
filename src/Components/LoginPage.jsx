@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import logo from '../assets/smartpayroll-logo.png';
 
 /* ─── SVG Icon helper ─── */
 const Ic = ({ d, size = 18, color = 'currentColor' }) => (
@@ -73,224 +72,6 @@ const inputStyle = (hasIcon, hasError, accentColor = '#2563EB') => ({
     fontFamily: 'inherit',
 });
 
-/* ═══════════════════════════════════════════════════════════════
-   SCREEN 1 — Role Selector (Premium 3D Look)
-═══════════════════════════════════════════════════════════════ */
-const RoleSelector = ({ onSelect }) => {
-    const [hoveredRole, setHoveredRole] = useState(null);
-
-    const roles = [
-        {
-            key: 'admin',
-            label: 'Administrator',
-            tagline: 'Access the payroll dashboard',
-            description: 'Manage employees, run payroll, generate reports, and configure company settings.',
-            icon: ICON.shield,
-            badge: 'Full Access',
-            badgeColor: 'linear-gradient(135deg, #2563EB, #0284C7)',
-            badgeText: '#fff',
-            gradient: '#fff',
-            glowColor: 'rgba(37,99,235,0.4)',
-            features: ['Employee Management', 'Payroll Processing', 'Reports & Analytics', 'Company Settings'],
-            available: true,
-            themeColor: '#2563EB'
-        },
-        {
-            key: 'client',
-            label: 'Employee / Client',
-            tagline: 'View your payslips & info',
-            description: 'Access your personal payslips, time records, leave balance, and HR documents.',
-            icon: ICON.users,
-            badge: 'Self-Service',
-            badgeColor: 'linear-gradient(135deg, #475569, #1E293B)',
-            badgeText: '#fff',
-            gradient: '#fff',
-            glowColor: 'rgba(100,116,139,0.4)',
-            features: ['View Payslips', 'Time Records', 'Leave Balance', 'HR Documents'],
-            available: true,
-            themeColor: '#475569'
-        },
-    ];
-
-    return (
-        <div style={{
-            minHeight: '100vh', display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center',
-            background: '#E2E8F0', // solid cool gray base
-            padding: '24px 16px', position: 'relative', overflow: 'hidden',
-            perspective: '1200px' // for 3d effect
-        }}>
-            {/* Ultra Premium 3D Background */}
-            <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
-                {/* 3D Grid floor */}
-                <div style={{
-                    position: 'absolute', bottom: '-40%', left: '-50%', right: '-50%', height: '100%',
-                    background: 'linear-gradient(to top, #CBD5E1 0%, transparent 100%)',
-                    backgroundImage: `
-                        linear-gradient(to right, rgba(255,255,255,0.4) 1px, transparent 1px),
-                        linear-gradient(to bottom, rgba(255,255,255,0.4) 1px, transparent 1px)
-                    `,
-                    backgroundSize: '80px 80px',
-                    transform: 'rotateX(75deg) translateY(100px) translateZ(-200px)',
-                    transformOrigin: 'bottom center',
-                    opacity: 0.8
-                }} />
-                
-                {/* Ambient glowing orbs */}
-                <div style={{ position: 'absolute', top: '10%', left: '15%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 60%)', filter: 'blur(40px)' }} />
-                <div style={{ position: 'absolute', bottom: '10%', right: '15%', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(14,165,233,0.15) 0%, transparent 60%)', filter: 'blur(40px)' }} />
-            </div>
-
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
-                * { font-family: 'Outfit', sans-serif; }
-                
-                .role-card { 
-                    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); 
-                    transform-style: preserve-3d;
-                }
-                .role-card:hover { 
-                    transform: translateY(-15px) rotateX(4deg) rotateY(-2deg) scale(1.03); 
-                    z-index: 10;
-                }
-                .role-card:active {
-                    transform: translateY(-5px) scale(0.98);
-                }
-                
-                .feature-pill { animation: fadeUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-                @keyframes fadeUp { from { opacity:0; transform:translateY(15px); } to { opacity:1; transform:none; } }
-                @keyframes float-icon { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-8px) rotate(3deg)} }
-                
-                .premium-text-clip {
-                    background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                }
-            `}</style>
-
-            {/* Logo + Header */}
-            <div style={{ textAlign: 'center', marginBottom: 50, zIndex: 1, transform: 'translateZ(50px)' }}>
-                <div style={{ 
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20,
-                    padding: '12px 24px', borderRadius: 20,
-                    background: 'rgba(255,255,255,0.8)',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.05), inset 0 2px 0 rgba(255,255,255,0.8)',
-                    backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.5)'
-                }}>
-                    <img src={logo} alt="Smart Payroll" style={{ height: 46, width: 'auto', objectFit: 'contain' }} />
-                </div>
-                
-                <h1 className="premium-text-clip" style={{ fontSize: 48, fontWeight: 900, margin: 0, letterSpacing: '-0.03em', lineHeight: 1.1, dropShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-                    Choose Your Portal
-                </h1>
-                <p style={{ fontSize: 18, color: '#475569', marginTop: 12, fontWeight: 500 }}>
-                    Select your access level to enter the ecosystem.
-                </p>
-            </div>
-
-            {/* Cards */}
-            <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap', justifyContent: 'center', zIndex: 1, width: '100%', maxWidth: 960, transformStyle: 'preserve-3d' }}>
-                {roles.map((role, ri) => {
-                    const isHovered = hoveredRole === role.key;
-                    return (
-                        <button
-                            key={role.key}
-                            className="role-card"
-                            onClick={() => role.available && onSelect(role.key)}
-                            onMouseEnter={() => setHoveredRole(role.key)}
-                            onMouseLeave={() => setHoveredRole(null)}
-                            disabled={!role.available}
-                            aria-label={`Sign in as ${role.label}`}
-                            style={{
-                                flex: '1 1 380px', maxWidth: 440, minHeight: 460,
-                                background: 'rgba(255, 255, 255, 0.85)',
-                                backdropFilter: 'blur(24px)',
-                                border: '1px solid rgba(255,255,255,0.9)',
-                                borderRadius: 32,
-                                padding: '40px',
-                                cursor: 'pointer',
-                                textAlign: 'left',
-                                position: 'relative',
-                                // Ultra premium 3D layered shadow
-                                boxShadow: isHovered 
-                                    ? `0 30px 60px -10px ${role.glowColor}, 0 20px 40px -10px rgba(0,0,0,0.1), inset 0 2px 4px rgba(255,255,255,1), inset 0 -4px 10px rgba(0,0,0,0.02)` 
-                                    : '0 20px 40px -10px rgba(15,23,42,0.08), 0 10px 20px -5px rgba(15,23,42,0.04), inset 0 2px 4px rgba(255,255,255,1), inset 0 -4px 10px rgba(0,0,0,0.02)',
-                            }}
-                        >
-                            {/* Inner Top highlight */}
-                            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '40%', background: 'linear-gradient(180deg, rgba(255,255,255,0.8) 0%, transparent 100%)', borderRadius: '32px 32px 0 0', pointerEvents: 'none' }} />
-
-                            {/* Badge */}
-                            <div style={{
-                                position: 'absolute', top: 24, right: 24,
-                                background: role.badgeColor,
-                                borderRadius: 100, padding: '6px 16px',
-                                fontSize: 12, fontWeight: 800, color: role.badgeText, letterSpacing: '0.05em',
-                                textTransform: 'uppercase',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.3)',
-                                transform: 'translateZ(30px)'
-                            }}>
-                                {role.badge}
-                            </div>
-
-                            {/* Floating 3D Icon */}
-                            <div style={{
-                                width: 80, height: 80, borderRadius: 24,
-                                background: isHovered ? `linear-gradient(135deg, ${role.themeColor}, #0F172A)` : '#F1F5F9',
-                                border: `2px solid ${isHovered ? 'rgba(255,255,255,0.2)' : '#E2E8F0'}`,
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                marginBottom: 32, transition: 'all 0.4s ease',
-                                animation: isHovered ? 'float-icon 3s ease-in-out infinite' : 'none',
-                                boxShadow: isHovered ? `0 14px 28px ${role.glowColor}, inset 0 2px 2px rgba(255,255,255,0.4)` : 'inset 0 2px 2px rgba(255,255,255,1), 0 4px 6px rgba(0,0,0,0.05)',
-                                transform: 'translateZ(40px)'
-                            }}>
-                                <Ic d={role.icon} size={36} color={isHovered ? '#fff' : role.themeColor} />
-                            </div>
-
-                            <div style={{ transform: 'translateZ(20px)' }}>
-                                {/* Text */}
-                                <h2 style={{ fontSize: 26, fontWeight: 800, color: '#0F172A', margin: '0 0 10px', letterSpacing: '-0.02em' }}>
-                                    {role.label}
-                                </h2>
-                                <p style={{ fontSize: 15, color: '#64748B', marginBottom: 24, lineHeight: 1.6, fontWeight: 500 }}>
-                                    {role.description}
-                                </p>
-
-                                {/* Feature list */}
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                                    {role.features.map((f, i) => (
-                                        <div key={f} className="feature-pill" style={{
-                                            display: 'flex', alignItems: 'center', gap: 12,
-                                            animationDelay: `${i * 80}ms`,
-                                        }}>
-                                            <div style={{
-                                                width: 22, height: 22, borderRadius: '50%',
-                                                background: isHovered ? `${role.themeColor}15` : '#F1F5F9',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                                                transition: 'background 0.3s'
-                                            }}>
-                                                <Ic d={ICON.check} size={12} color={isHovered ? role.themeColor : '#64748B'} />
-                                            </div>
-                                            <span style={{ fontSize: 14, color: '#334155', fontWeight: 600 }}>
-                                                {f}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </button>
-                    );
-                })}
-            </div>
-            
-            {/* Footer note */}
-            <p style={{ marginTop: 36, fontSize: 13, color: '#64748B', zIndex: 1, textAlign: 'center', transform: 'translateZ(10px)', fontWeight: 500 }}>
-                <Ic d={ICON.lock} size={12} color="#94A3B8" /> &nbsp;
-                256-bit encrypted · Enterprise-grade security
-            </p>
-        </div>
-    );
-};
 
 /* ═══════════════════════════════════════════════════════════════
    SCREEN 2a — Admin Login / Sign-Up  
@@ -298,6 +79,8 @@ const RoleSelector = ({ onSelect }) => {
 const AdminPortal = ({ onLoginSuccess, onBack }) => {
     const [isSignUp, setIsSignUp] = useState(false);
     const [isOtpStep, setIsOtpStep] = useState(false);
+    const [isForgotStep, setIsForgotStep] = useState(false);
+    const [isResetStep, setIsResetStep] = useState(false);
     const [otpCode, setOtpCode] = useState('');
     const [generatedOtp, setGeneratedOtp] = useState('');
     const [otpError, setOtpError] = useState('');
@@ -321,6 +104,8 @@ const AdminPortal = ({ onLoginSuccess, onBack }) => {
     const handleTabChange = (toSignUp) => {
         setIsSignUp(toSignUp);
         setIsOtpStep(false);
+        setIsForgotStep(false);
+        setIsResetStep(false);
         setOtpCode(''); setGeneratedOtp(''); setOtpError('');
         setServerError(''); setSuccessMsg(''); setFieldErrors({});
         setForm({ firstName: '', lastName: '', company: '', email: '', password: '', inviteCode: '' });
@@ -328,6 +113,20 @@ const AdminPortal = ({ onLoginSuccess, onBack }) => {
 
     const validate = () => {
         const errs = {};
+        const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (isForgotStep && !isResetStep) {
+             if (!form.email || !emailRe.test(form.email)) errs.email = 'Enter a valid email address.';
+             setFieldErrors(errs);
+             return Object.keys(errs).length === 0;
+        }
+        if (isResetStep) {
+             if (otpCode.length !== 6) errs.otp = 'Complete the OTP.';
+             if (pwdAnalysis.score < 5) errs.password = 'Password does not meet all requirements.';
+             setFieldErrors(errs);
+             return Object.keys(errs).length === 0;
+        }
+
         if (isSignUp) {
             if (!form.firstName.trim() || form.firstName.trim().length < 2) errs.firstName = 'At least 2 characters required.';
             if (!form.lastName.trim()  || form.lastName.trim().length  < 2) errs.lastName  = 'At least 2 characters required.';
@@ -335,7 +134,6 @@ const AdminPortal = ({ onLoginSuccess, onBack }) => {
             if (!form.inviteCode.trim()) errs.inviteCode = 'Invite code is required.';
             if (pwdAnalysis.score < 5) errs.password = 'Password does not meet all requirements.';
         }
-        const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!form.email || !emailRe.test(form.email)) errs.email = 'Enter a valid email address.';
         if (!form.password) errs.password = errs.password || 'Password is required.';
         setFieldErrors(errs);
@@ -344,6 +142,60 @@ const AdminPortal = ({ onLoginSuccess, onBack }) => {
 
     const onSubmit = async (e) => {
         e.preventDefault();
+
+        // FORGOT PASSWORD -> Send OTP logic
+        if (isForgotStep && !isResetStep) {
+            if (!validate()) return;
+            setLoading(true); setServerError(''); setSuccessMsg('');
+            try {
+                const res = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: form.email })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    setIsResetStep(true);
+                    setSuccessMsg(`Password reset code sent to ${form.email}`);
+                } else {
+                    setServerError(data.msg || 'Could not send reset email.');
+                }
+            } catch (err) {
+                setServerError('Failed to connect to server.');
+            } finally {
+                setLoading(false);
+            }
+            return;
+        }
+
+        // RESET PASSWORD -> Final verify & change password
+        if (isResetStep) {
+            if (!validate()) return;
+            setLoading(true); setServerError(''); setSuccessMsg(''); setOtpError('');
+            try {
+                const res = await fetch('/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: form.email, otp: otpCode, newPassword: form.password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    setSuccessMsg('Password has been successfully changed! You can log in.');
+                    setTimeout(() => {
+                        setIsForgotStep(false);
+                        setIsResetStep(false);
+                        handleTabChange(false);
+                    }, 2500);
+                } else {
+                    setServerError(data.msg || 'Invalid or expired reset code.');
+                }
+            } catch (err) {
+                setServerError('Failed to connect to server.');
+            } finally {
+                setLoading(false);
+            }
+            return;
+        }
 
         if (isOtpStep) {
             if (otpCode !== generatedOtp) {
@@ -435,51 +287,35 @@ const AdminPortal = ({ onLoginSuccess, onBack }) => {
             `}</style>
 
             {/* Background dots */}
-            <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(37,99,235,0.03) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', top: '10%', left: '5%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
             {/* ── Left Panel (branding) ── */}
             <div className="admin-panel" style={{
-                width: '42%', minHeight: '100vh', padding: '48px 48px',
+                width: '42%', minHeight: '100vh', padding: '64px 48px 48px',
                 display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
                 position: 'relative', zIndex: 1,
                 borderRight: '1px solid rgba(255,255,255,0.07)',
             }}>
-                {/* Back button */}
+                {/* Branding Block (Pushed to Top) */}
                 <div>
-                    <button onClick={onBack} style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 7,
-                        background: '#fff', border: '1px solid #E2E8F0',
-                        borderRadius: 10, padding: '7px 14px', color: '#475569',
-                        fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                        transition: 'background 0.15s, color 0.15s',
-                    }}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#F8FAFC'; e.currentTarget.style.color = '#0F172A'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#475569'; }}
-                    >
-                        <Ic d={ICON.back} size={15} /> Change portal
-                    </button>
-                </div>
-
-                {/* Center branding */}
-                <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 40 }}>
-                        <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(135deg,#2563EB,#06B6D4)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(37,99,235,0.25)' }}>
-                            <Ic d={ICON.shield} size={26} color="#fff" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 54 }}>
+                        <div style={{ width: 68, height: 68, borderRadius: 18, background: 'linear-gradient(135deg,#2563EB,#06B6D4)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 12px 28px rgba(37,99,235,0.25)' }}>
+                            <Ic d={ICON.shield} size={34} color="#fff" />
                         </div>
                         <div>
-                            <p style={{ fontSize: 11, fontWeight: 700, color: '#64748B', letterSpacing: '0.1em', textTransform: 'uppercase' }}>SmartPayroll</p>
-                            <p style={{ fontSize: 18, fontWeight: 800, color: '#0F172A' }}>Admin Portal</p>
+                            <p style={{ fontSize: 13, fontWeight: 800, color: '#64748B', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>HamroPayroll</p>
+                            <p style={{ fontSize: 24, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', margin: 0 }}>Admin Portal</p>
                         </div>
                     </div>
 
-                    <h2 style={{ fontSize: 36, fontWeight: 900, color: '#0F172A', lineHeight: 1.15, marginBottom: 16, letterSpacing: -0.5 }}>
+                    <h2 style={{ fontSize: 44, fontWeight: 900, color: '#0F172A', lineHeight: 1.1, marginBottom: 18, letterSpacing: -0.8 }}>
                         Manage payroll<br />
                         <span style={{ background: 'linear-gradient(90deg,#0EA5E9,#2563EB)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                             effortlessly.
                         </span>
                     </h2>
-                    <p style={{ fontSize: 14.5, color: '#64748B', lineHeight: 1.7, maxWidth: 320 }}>
+                    <p style={{ fontSize: 16, color: '#64748B', lineHeight: 1.65, maxWidth: 340 }}>
                         Full access to payroll runs, employee management, analytics, and company configuration.
                     </p>
 
@@ -519,7 +355,7 @@ const AdminPortal = ({ onLoginSuccess, onBack }) => {
 
             {/* ── Right Panel (form) ── */}
             <div style={{
-                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                 padding: '32px 24px', position: 'relative', zIndex: 1,
                 overflowY: 'auto',
             }}>
@@ -603,6 +439,8 @@ const AdminPortal = ({ onLoginSuccess, onBack }) => {
                                             onBlur={e => Object.assign(e.target.style, blurStyle(!!fieldErrors.email))} />
                                     </Field>
 
+                                    {!isForgotStep && (
+                                        <>
                                     <Field label="Password" icon={ICON.lock} error={fieldErrors.password} required>
                                         <input name="password" type={showPassword ? 'text' : 'password'} value={form.password} onChange={onChange}
                                             placeholder={isSignUp ? 'Min 8 chars, uppercase, number, symbol' : 'Enter your password'}
@@ -616,6 +454,16 @@ const AdminPortal = ({ onLoginSuccess, onBack }) => {
                                             <Ic d={showPassword ? ICON.eyeOff : ICON.eye} size={17} />
                                         </button>
                                     </Field>
+
+                                    {!isSignUp && (
+                                        <div style={{ textAlign: 'right', marginTop: -8, marginBottom: 16 }}>
+                                            <button type="button" onClick={() => { setIsForgotStep(true); setServerError(''); setFieldErrors({}); setSuccessMsg(''); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: accent, fontSize: 13, fontWeight: 600 }}>
+                                                Forgot password?
+                                            </button>
+                                        </div>
+                                    )}
+                                        </>
+                                    )}
 
                                     {/* Strength meter */}
                                     {isSignUp && form.password && (
@@ -639,6 +487,59 @@ const AdminPortal = ({ onLoginSuccess, onBack }) => {
                                         </div>
                                     )}
                                 </>
+                            ) : isResetStep ? (
+                                <div style={{ marginBottom: 20, animation: 'fadeIn 0.4s ease both' }}>
+                                    <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                                        <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', border: '1px solid #BFDBFE' }}>
+                                            <Ic d={ICON.lock} size={26} color="#2563EB" />
+                                        </div>
+                                        <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>Reset Password</h3>
+                                        <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>Check your inbox for a 6-digit reset code.</p>
+                                    </div>
+                                    <Field label="Reset Code" icon={ICON.key} error={fieldErrors.otp} required>
+                                        <input type="text" maxLength={6} value={otpCode} onChange={e => {setOtpCode(e.target.value.replace(/\D/g, '')); setOtpError(''); setFieldErrors(f => ({ ...f, otp: '' }));}}
+                                            placeholder="123456"
+                                            style={{ ...inputStyle(true, !!fieldErrors.otp, accent), letterSpacing: 8, fontSize: 18, fontWeight: 700, textAlign: 'center', paddingLeft: 12, paddingRight: 12 }}
+                                            onFocus={e => Object.assign(e.target.style, focusStyle(false))}
+                                            onBlur={e => Object.assign(e.target.style, blurStyle(!!fieldErrors.otp))} />
+                                    </Field>
+                                    
+                                    <Field label="New Password" icon={ICON.lock} error={fieldErrors.password} required>
+                                        <input name="password" type={showPassword ? 'text' : 'password'} value={form.password} onChange={onChange}
+                                            placeholder="Min 8 chars, uppercase, number, symbol"
+                                            style={{ ...inputStyle(true, !!fieldErrors.password, accent), paddingRight: 40 }}
+                                            onFocus={e => Object.assign(e.target.style, focusStyle(!!fieldErrors.password))}
+                                            onBlur={e => Object.assign(e.target.style, blurStyle(!!fieldErrors.password))} />
+                                        <button type="button" onClick={() => setShowPassword(s => !s)} aria-label={showPassword ? 'Hide password' : 'Show password'} style={{
+                                            position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+                                            background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', padding: 0,
+                                        }}>
+                                            <Ic d={showPassword ? ICON.eyeOff : ICON.eye} size={17} />
+                                        </button>
+                                    </Field>
+
+                                    {form.password && (
+                                        <div style={{ marginBottom: 16, marginTop: -6 }}>
+                                            <div style={{ display: 'flex', gap: 4, marginBottom: 7 }}>
+                                                {[1, 2, 3, 4, 5].map(i => (
+                                                    <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= pwdAnalysis.score ? strengthColor[pwdAnalysis.score] : '#E5E7EB', transition: 'background 0.3s' }} />
+                                                ))}
+                                            </div>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px 8px' }}>
+                                                {pwdChecks.map(c => (
+                                                    <div key={c.key} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                                                        <Ic d={ICON.check} size={13} color={pwdAnalysis.checks[c.key] ? '#22C55E' : '#D1D5DB'} />
+                                                        <span style={{ fontSize: 11, color: pwdAnalysis.checks[c.key] ? '#374151' : '#9CA3AF' }}>{c.label}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <button type="button" onClick={() => { setIsForgotStep(false); setIsResetStep(false); }} style={{ background: 'none', border: 'none', color: accent, fontSize: 13, fontWeight: 600, cursor: 'pointer', margin: '0 auto', display: 'block', padding: '6px 12px' }}>
+                                        Back to Login
+                                    </button>
+                                </div>
                             ) : (
                                 <div style={{ marginBottom: 20, animation: 'fadeIn 0.4s ease both' }}>
                                     <div style={{ textAlign: 'center', marginBottom: 20 }}>
@@ -698,10 +599,37 @@ const AdminPortal = ({ onLoginSuccess, onBack }) => {
                                 onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(37,99,235,0.5)'; }}}
                                 onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = loading ? 'none' : '0 4px 16px rgba(37,99,235,0.38)'; }}
                             >
-                                {loading ? 'Processing…' : isOtpStep ? 'Verify & Complete Signup' : isSignUp ? 'Continue to Verification →' : 'Sign In to Dashboard'}
+                                {loading ? 'Processing…' : isResetStep ? 'Save New Password' : isForgotStep ? 'Send Reset Code' : isOtpStep ? 'Verify & Complete Signup' : isSignUp ? 'Continue to Verification →' : 'Sign In to Dashboard'}
                             </button>
+                            
+                            {/* Cancel forgot password inside bottom */}
+                            {isForgotStep && !isResetStep && (
+                                <button type="button" onClick={() => { setIsForgotStep(false); setServerError(''); setFieldErrors({}); }} style={{
+                                    display: 'block', width: '100%', textAlign: 'center', background: 'none', border: 'none',
+                                    color: '#64748B', fontSize: 13, marginTop: 14, cursor: 'pointer', fontWeight: 600
+                                }}>
+                                    Back to Login
+                                </button>
+                            )}
                         </form>
                     </div>
+                </div>
+
+                {/* Change Portal Button below card */}
+                <div style={{ marginTop: 24, textAlign: 'center', animation: 'fadeIn 0.6s ease both' }}>
+                    <p style={{ fontSize: 13, color: '#64748B', marginBottom: 12 }}>Looking for employee access?</p>
+                    <button onClick={onBack} style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 8,
+                        background: 'transparent', border: '1px solid #E2E8F0',
+                        borderRadius: 100, padding: '9px 22px', color: '#0F172A',
+                        fontSize: 13.5, fontWeight: 700, cursor: 'pointer',
+                        transition: 'all 0.2s',
+                    }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#F8FAFC'; e.currentTarget.style.borderColor = '#CBD5E1'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = '#E2E8F0'; }}
+                    >
+                        Switch to Client Portal <span style={{fontSize: 15, lineHeight: 1}}>→</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -767,7 +695,7 @@ const ClientDashboard = ({ onBack }) => {
             <div style={{width:210,background:'#fff',borderRight:bdr,display:'flex',flexDirection:'column',padding:'22px 12px',flexShrink:0}}>
                 <div style={{display:'flex',alignItems:'center',gap:10,padding:'0 4px',marginBottom:24}}>
                     <div style={{width:34,height:34,borderRadius:10,background:'linear-gradient(135deg,#2563EB,#06B6D4)',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:15,color:'#fff',boxShadow:'0 4px 12px rgba(37,99,235,0.3)'}}>S</div>
-                    <div><p style={{fontWeight:800,fontSize:14,color:C.text,margin:0}}>SmartPayroll</p><p style={{fontSize:10.5,color:C.muted,margin:0}}>Employee Portal</p></div>
+                    <div><p style={{fontWeight:800,fontSize:14,color:C.text,margin:0}}>HamroPayroll</p><p style={{fontSize:10.5,color:C.muted,margin:0}}>Employee Portal</p></div>
                 </div>
                 <div style={{display:'flex',flexDirection:'column',gap:3,flex:1}}>{CTABS.map(t=><CNavBtn key={t.k} label={t.l} icon={t.i} active={tab===t.k} onClick={()=>setTab(t.k)}/>)}</div>
                 <div style={{borderTop:bdr,paddingTop:14}}>
@@ -997,6 +925,8 @@ const ClientDashboard = ({ onBack }) => {
 const ClientAuth = ({ onLogin, onBack }) => {
     const [isSignUp, setIsSignUp] = useState(false);
     const [isOtpStep, setIsOtpStep] = useState(false);
+    const [isForgotStep, setIsForgotStep] = useState(false);
+    const [isResetStep, setIsResetStep] = useState(false);
     const [otpCode, setOtpCode] = useState('');
     const [generatedOtp, setGeneratedOtp] = useState('');
     const [otpError, setOtpError] = useState('');
@@ -1020,6 +950,8 @@ const ClientAuth = ({ onLogin, onBack }) => {
     const handleTabChange = (toSignUp) => {
         setIsSignUp(toSignUp);
         setIsOtpStep(false);
+        setIsForgotStep(false);
+        setIsResetStep(false);
         setOtpCode(''); setGeneratedOtp(''); setOtpError('');
         setServerError(''); setSuccessMsg(''); setFieldErrors({});
         setForm({ firstName: '', lastName: '', email: '', password: '' });
@@ -1027,12 +959,25 @@ const ClientAuth = ({ onLogin, onBack }) => {
 
     const validate = () => {
         const errs = {};
+        const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (isForgotStep && !isResetStep) {
+             if (!form.email || !emailRe.test(form.email)) errs.email = 'Enter a valid email address.';
+             setFieldErrors(errs);
+             return Object.keys(errs).length === 0;
+        }
+        if (isResetStep) {
+             if (otpCode.length !== 6) errs.otp = 'Complete the OTP.';
+             if (pwdAnalysis.score < 5) errs.password = 'Password does not meet all requirements.';
+             setFieldErrors(errs);
+             return Object.keys(errs).length === 0;
+        }
+
         if (isSignUp) {
             if (!form.firstName.trim() || form.firstName.trim().length < 2) errs.firstName = 'At least 2 characters required.';
             if (!form.lastName.trim()  || form.lastName.trim().length  < 2) errs.lastName  = 'At least 2 characters required.';
             if (pwdAnalysis.score < 5) errs.password = 'Password does not meet all requirements.';
         }
-        const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!form.email || !emailRe.test(form.email)) errs.email = 'Enter a valid email address.';
         if (!form.password) errs.password = errs.password || 'Password is required.';
         setFieldErrors(errs);
@@ -1041,6 +986,60 @@ const ClientAuth = ({ onLogin, onBack }) => {
 
     const onSubmit = async (e) => {
         e.preventDefault();
+
+        // FORGOT PASSWORD -> Send OTP logic
+        if (isForgotStep && !isResetStep) {
+            if (!validate()) return;
+            setLoading(true); setServerError(''); setSuccessMsg('');
+            try {
+                const res = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: form.email })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    setIsResetStep(true);
+                    setSuccessMsg(`Password reset code sent to ${form.email}`);
+                } else {
+                    setServerError(data.msg || 'Could not send reset email.');
+                }
+            } catch (err) {
+                setServerError('Failed to connect to server.');
+            } finally {
+                setLoading(false);
+            }
+            return;
+        }
+
+        // RESET PASSWORD -> Final verify & change password
+        if (isResetStep) {
+            if (!validate()) return;
+            setLoading(true); setServerError(''); setSuccessMsg(''); setOtpError('');
+            try {
+                const res = await fetch('/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: form.email, otp: otpCode, newPassword: form.password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    setSuccessMsg('Password has been successfully changed! You can log in.');
+                    setTimeout(() => {
+                        setIsForgotStep(false);
+                        setIsResetStep(false);
+                        handleTabChange(false);
+                    }, 2500);
+                } else {
+                    setServerError(data.msg || 'Invalid or expired reset code.');
+                }
+            } catch (err) {
+                setServerError('Failed to connect to server.');
+            } finally {
+                setLoading(false);
+            }
+            return;
+        }
 
         if (isOtpStep) {
             if (otpCode !== generatedOtp) {
@@ -1105,7 +1104,7 @@ const ClientAuth = ({ onLogin, onBack }) => {
     return (
         <div style={{
             minHeight: '100vh', display: 'flex',
-            background: 'linear-gradient(145deg, #F0FDFA 0%, #ECFEFF 50%, #E0F2FE 100%)',
+            background: 'linear-gradient(145deg, #F8FAFC 0%, #EFF6FF 50%, #E0F2FE 100%)',
             position: 'relative', overflow: 'hidden',
         }}>
             <style>{`
@@ -1118,51 +1117,37 @@ const ClientAuth = ({ onLogin, onBack }) => {
             `}</style>
             
             {/* Background dots & Orbs */}
-            <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(15,23,42,0.02) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', top: '10%', right: '5%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(37,99,235,0.03) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', top: '10%', right: '5%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
             {/* ── Left Panel (branding) ── */}
             <div className="client-panel" style={{
-                width: '42%', minHeight: '100vh', padding: '48px 48px',
+                width: '42%', minHeight: '100vh', padding: '64px 48px 48px',
                 display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
                 position: 'relative', zIndex: 1,
                 borderRight: '1px solid rgba(255,255,255,0.4)',
                 background: 'rgba(255,255,255,0.2)',
                 backdropFilter: 'blur(10px)',
             }}>
+                {/* Branding Block (Pushed to Top) */}
                 <div>
-                    <button onClick={onBack} style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 7,
-                        background: '#fff', border: '1px solid #E2E8F0',
-                        borderRadius: 10, padding: '7px 14px', color: '#475569',
-                        fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                        transition: 'background 0.15s, color 0.15s',
-                    }}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#F8FAFC'; e.currentTarget.style.color = '#0F172A'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#475569'; }}
-                    >
-                        <Ic d={ICON.back} size={15} /> Change portal
-                    </button>
-                </div>
-
-                <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 40 }}>
-                        <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(135deg,#0ea5e9,#06b6d4)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(6,182,212,0.25)' }}>
-                            <Ic d={ICON.users} size={26} color="#fff" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 54 }}>
+                        <div style={{ width: 68, height: 68, borderRadius: 18, background: 'linear-gradient(135deg,#0ea5e9,#06b6d4)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 12px 28px rgba(6,182,212,0.25)' }}>
+                            <Ic d={ICON.users} size={34} color="#fff" />
                         </div>
                         <div>
-                            <p style={{ fontSize: 11, fontWeight: 700, color: '#64748B', letterSpacing: '0.1em', textTransform: 'uppercase' }}>SmartPayroll</p>
-                            <p style={{ fontSize: 18, fontWeight: 800, color: '#0F172A' }}>Client / Employee</p>
+                            <p style={{ fontSize: 13, fontWeight: 800, color: '#64748B', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 2 }}>HamroPayroll</p>
+                            <p style={{ fontSize: 24, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', margin: 0 }}>Client Portal</p>
                         </div>
                     </div>
 
-                    <h2 style={{ fontSize: 36, fontWeight: 900, color: '#0F172A', lineHeight: 1.15, marginBottom: 16, letterSpacing: -0.5 }}>
+                    <h2 style={{ fontSize: 44, fontWeight: 900, color: '#0F172A', lineHeight: 1.1, marginBottom: 18, letterSpacing: -0.8 }}>
                         Access your work<br />
                         <span style={{ background: 'linear-gradient(90deg,#0ea5e9,#06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                             seamlessly.
                         </span>
                     </h2>
-                    <p style={{ fontSize: 14.5, color: '#64748B', lineHeight: 1.7, maxWidth: 320 }}>
+                    <p style={{ fontSize: 16, color: '#64748B', lineHeight: 1.65, maxWidth: 340 }}>
                         View monthly payslips, manage time off requests, submit expense claims, and update your personal profile.
                     </p>
 
@@ -1200,7 +1185,7 @@ const ClientAuth = ({ onLogin, onBack }) => {
 
             {/* ── Right Panel (form) ── */}
             <div style={{
-                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                 padding: '32px 24px', position: 'relative', zIndex: 1,
                 overflowY: 'auto',
             }}>
@@ -1267,6 +1252,8 @@ const ClientAuth = ({ onLogin, onBack }) => {
                                             onBlur={e => Object.assign(e.target.style, blurStyle(!!fieldErrors.email))} />
                                     </Field>
 
+                                    {!isForgotStep && (
+                                        <>
                                     <Field label="Password" icon={ICON.lock} error={fieldErrors.password} required>
                                         <input name="password" type={showPassword ? 'text' : 'password'} value={form.password} onChange={onChange}
                                             placeholder={isSignUp ? 'Min 8 chars, uppercase, number, symbol' : 'Enter your password'}
@@ -1280,6 +1267,16 @@ const ClientAuth = ({ onLogin, onBack }) => {
                                             <Ic d={showPassword ? ICON.eyeOff : ICON.eye} size={17} />
                                         </button>
                                     </Field>
+
+                                    {!isSignUp && (
+                                        <div style={{ textAlign: 'right', marginTop: -8, marginBottom: 16 }}>
+                                            <button type="button" onClick={() => { setIsForgotStep(true); setServerError(''); setFieldErrors({}); setSuccessMsg(''); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: accent, fontSize: 13, fontWeight: 600 }}>
+                                                Forgot password?
+                                            </button>
+                                        </div>
+                                    )}
+                                        </>
+                                    )}
 
                                     {isSignUp && form.password && (
                                         <div style={{ marginBottom: 16, marginTop: -6 }}>
@@ -1302,6 +1299,59 @@ const ClientAuth = ({ onLogin, onBack }) => {
                                         </div>
                                     )}
                                 </>
+                            ) : isResetStep ? (
+                                <div style={{ marginBottom: 20, animation: 'fadeInData 0.4s ease both' }}>
+                                    <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                                        <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#ECFEFF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', border: '1px solid #A5F3FC' }}>
+                                            <Ic d={ICON.lock} size={26} color="#0891B2" />
+                                        </div>
+                                        <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>Reset Password</h3>
+                                        <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>Check your inbox for a 6-digit reset code.</p>
+                                    </div>
+                                    <Field label="Reset Code" icon={ICON.key} error={fieldErrors.otp} required>
+                                        <input type="text" maxLength={6} value={otpCode} onChange={e => {setOtpCode(e.target.value.replace(/\D/g, '')); setOtpError(''); setFieldErrors(f => ({ ...f, otp: '' }));}}
+                                            placeholder="123456"
+                                            style={{ ...inputStyle(true, !!fieldErrors.otp, accent), letterSpacing: 8, fontSize: 18, fontWeight: 700, textAlign: 'center', paddingLeft: 12, paddingRight: 12 }}
+                                            onFocus={e => Object.assign(e.target.style, focusStyle(false))}
+                                            onBlur={e => Object.assign(e.target.style, blurStyle(!!fieldErrors.otp))} />
+                                    </Field>
+                                    
+                                    <Field label="New Password" icon={ICON.lock} error={fieldErrors.password} required>
+                                        <input name="password" type={showPassword ? 'text' : 'password'} value={form.password} onChange={onChange}
+                                            placeholder="Min 8 chars, uppercase, number, symbol"
+                                            style={{ ...inputStyle(true, !!fieldErrors.password, accent), paddingRight: 40 }}
+                                            onFocus={e => Object.assign(e.target.style, focusStyle(!!fieldErrors.password))}
+                                            onBlur={e => Object.assign(e.target.style, blurStyle(!!fieldErrors.password))} />
+                                        <button type="button" onClick={() => setShowPassword(s => !s)} aria-label={showPassword ? 'Hide password' : 'Show password'} style={{
+                                            position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+                                            background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', padding: 0,
+                                        }}>
+                                            <Ic d={showPassword ? ICON.eyeOff : ICON.eye} size={17} />
+                                        </button>
+                                    </Field>
+
+                                    {form.password && (
+                                        <div style={{ marginBottom: 16, marginTop: -6 }}>
+                                            <div style={{ display: 'flex', gap: 4, marginBottom: 7 }}>
+                                                {[1, 2, 3, 4, 5].map(i => (
+                                                    <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= pwdAnalysis.score ? strengthColor[pwdAnalysis.score] : '#E5E7EB', transition: 'background 0.3s' }} />
+                                                ))}
+                                            </div>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px 8px' }}>
+                                                {pwdChecks.map(c => (
+                                                    <div key={c.key} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                                                        <Ic d={ICON.check} size={13} color={pwdAnalysis.checks[c.key] ? '#22C55E' : '#D1D5DB'} />
+                                                        <span style={{ fontSize: 11, color: pwdAnalysis.checks[c.key] ? '#374151' : '#9CA3AF' }}>{c.label}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <button type="button" onClick={() => { setIsForgotStep(false); setIsResetStep(false); }} style={{ background: 'none', border: 'none', color: accent, fontSize: 13, fontWeight: 600, cursor: 'pointer', margin: '0 auto', display: 'block', padding: '6px 12px' }}>
+                                        Back to Login
+                                    </button>
+                                </div>
                             ) : (
                                 <div style={{ marginBottom: 20, animation: 'fadeInData 0.4s ease both' }}>
                                     <div style={{ textAlign: 'center', marginBottom: 20 }}>
@@ -1359,10 +1409,37 @@ const ClientAuth = ({ onLogin, onBack }) => {
                                 onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(6,182,212,0.5)'; }}}
                                 onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = loading ? 'none' : '0 4px 16px rgba(6,182,212,0.38)'; }}
                             >
-                                {loading ? 'Processing…' : isOtpStep ? 'Verify & Complete Signup' : isSignUp ? 'Continue to Verification →' : 'Sign In to Portal'}
+                                {loading ? 'Processing…' : isResetStep ? 'Save New Password' : isForgotStep ? 'Send Reset Code' : isOtpStep ? 'Verify & Complete Signup' : isSignUp ? 'Continue to Verification →' : 'Sign In to Portal'}
                             </button>
+
+                            {/* Cancel forgot password inside bottom */}
+                            {isForgotStep && !isResetStep && (
+                                <button type="button" onClick={() => { setIsForgotStep(false); setServerError(''); setFieldErrors({}); }} style={{
+                                    display: 'block', width: '100%', textAlign: 'center', background: 'none', border: 'none',
+                                    color: '#64748B', fontSize: 13, marginTop: 14, cursor: 'pointer', fontWeight: 600
+                                }}>
+                                    Back to Login
+                                </button>
+                            )}
                         </form>
                     </div>
+                </div>
+
+                {/* Change Portal Button below card */}
+                <div style={{ marginTop: 24, textAlign: 'center', animation: 'fadeInData 0.6s ease both' }}>
+                    <p style={{ fontSize: 13, color: '#64748B', marginBottom: 12 }}>Looking for administrative access?</p>
+                    <button onClick={onBack} style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 8,
+                        background: 'transparent', border: '1px solid #E2E8F0',
+                        borderRadius: 100, padding: '9px 22px', color: '#0F172A',
+                        fontSize: 13.5, fontWeight: 700, cursor: 'pointer',
+                        transition: 'all 0.2s',
+                    }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#F8FAFC'; e.currentTarget.style.borderColor = '#CBD5E1'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = '#E2E8F0'; }}
+                    >
+                        Switch to Admin Portal <span style={{fontSize: 15, lineHeight: 1}}>→</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -1376,15 +1453,14 @@ const ClientPortal = ({ onBack }) => {
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   Root: orchestrates all 3 screens
+   Root: orchestrates the portal screens
 ═══════════════════════════════════════════════════════════════ */
 const LoginPage = ({ onLoginSuccess }) => {
-    // 'select' | 'admin' | 'client'
-    const [screen, setScreen] = useState('select');
+    // 'admin' | 'client'
+    const [screen, setScreen] = useState('admin');
 
-    if (screen === 'admin')  return <AdminPortal  onLoginSuccess={onLoginSuccess} onBack={() => setScreen('select')} />;
-    if (screen === 'client') return <ClientPortal onBack={() => setScreen('admin')} />;
-    return <RoleSelector onSelect={setScreen} />;
+    if (screen === 'admin')  return <AdminPortal  onLoginSuccess={onLoginSuccess} onBack={() => setScreen('client')} />;
+    return <ClientPortal onBack={() => setScreen('admin')} />;
 };
 
 export default LoginPage;

@@ -235,7 +235,7 @@ const Marketplace = () => {
       {/* ── Header ── */}
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.4px' }}>Marketplace</h1>
-        <p style={{ fontSize: 13.5, color: '#64748B', marginTop: 6 }}>Connect SmartPayroll with your favourite tools and unlock exclusive partner perks.</p>
+        <p style={{ fontSize: 13.5, color: '#64748B', marginTop: 6 }}>Connect HamroPayroll with your favourite tools and unlock exclusive partner perks.</p>
       </div>
 
       {/* ── Stats row ── */}
@@ -254,7 +254,7 @@ const Marketplace = () => {
           <div>
             <p style={{ fontSize: 11.5, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.06em', margin: '0 0 4px' }}>PARTNER SPOTLIGHT</p>
             <p style={{ fontSize: 16, fontWeight: 800, color: '#fff', margin: '0 0 4px' }}>Unlock $1,000+ in exclusive perks</p>
-            <p style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.8)', margin: 0 }}>Discounts, credits, and free trials for SmartPayroll users.</p>
+            <p style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.8)', margin: 0 }}>Discounts, credits, and free trials for HamroPayroll users.</p>
           </div>
           <div style={{ display: 'flex', gap: -8, flexShrink: 0 }}>
             {['C','B','S','N'].map((l, i) => (
@@ -301,7 +301,7 @@ const Marketplace = () => {
       {/* ── Footer CTA ── */}
       <div style={{ marginTop: 36, background: 'linear-gradient(135deg,#F8FAFF,#EEF2FF)', borderRadius: 16, border: '1.5px solid #C7D2FE', padding: '28px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
         <div>
-          <p style={{ fontSize: 17, fontWeight: 800, color: '#1E3A8A', margin: '0 0 4px' }}>Want to list your app on SmartPayroll?</p>
+          <p style={{ fontSize: 17, fontWeight: 800, color: '#1E3A8A', margin: '0 0 4px' }}>Want to list your app on HamroPayroll?</p>
           <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>Reach thousands of companies and HR teams by partnering with us.</p>
         </div>
         <button style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#2563EB,#06B6D4)', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 13.5, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 14px rgba(37,99,235,0.30)' }}>

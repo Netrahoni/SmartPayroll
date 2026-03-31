@@ -150,6 +150,73 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// @route   POST api/auth/forgot-password
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await User.findOne({ email });
+        if (!user) return res.status(404).json({ msg: 'No account with that email address exists.' });
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        // Save OTP and expiration (10 minutes)
+        user.resetOtp = otp;
+        user.resetOtpExpire = Date.now() + 10 * 60 * 1000;
+        await user.save();
+
+        const transporter = await getTransporter();
+        const info = await transporter.sendMail({
+            from: '"SmartPayroll Security" <security@smartpayroll.local>',
+            to: user.email,
+            subject: 'Password Reset Request',
+            text: `Your password reset code is: ${otp}`,
+            html: `<div style="font-family: sans-serif; text-align: center; padding: 20px;">
+                    <h2>SmartPayroll</h2>
+                    <p>You requested a password reset. Your OTP code is:</p>
+                    <h1 style="letter-spacing: 5px; color: #06b6d4;">${otp}</h1>
+                    <p>This code will expire in 10 minutes.</p>
+                   </div>`
+        });
+        
+        console.log('📬 Password Reset Email sent! Preview URL: %s', nodemailer.getTestMessageUrl(info));
+        res.json({ msg: 'Reset email sent' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   POST api/auth/reset-password
+router.post('/reset-password', async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+    try {
+        const user = await User.findOne({ 
+            email, 
+            resetOtp: otp,
+            resetOtpExpire: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ msg: 'Invalid or expired reset code.' });
+        }
+
+        if (!isStrongPassword(newPassword)) {
+            return res.status(400).json({ msg: 'Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character.' });
+        }
+
+        const salt = await bcrypt.genSalt(12);
+        user.password = await bcrypt.hash(newPassword, salt);
+        user.resetOtp = undefined;
+        user.resetOtpExpire = undefined;
+        await user.save();
+
+        res.json({ msg: 'Password has been successfully changed!' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 // @route   PUT api/auth/change-password
 router.put('/change-password', auth, async (req, res) => {
     const { currentPassword, newPassword } = req.body;
@@ -181,18 +248,40 @@ router.get('/user', auth, async (req, res) => {
 
 // @route   PUT api/auth/user
 router.put('/user', auth, async (req, res) => {
-    const { firstName, middleName, lastName, email, phone, department, position } = req.body;
-    const profileFields = { firstName, middleName, lastName, email, phone, department, position };
     try {
-        let user = await User.findByIdAndUpdate(
-            req.user.id,
-            { $set: profileFields },
-            { new: true }
-        ).select('-password');
-        res.json(user);
+        console.log('[PUT /user] req.body keys:', Object.keys(req.body));
+        console.log('[PUT /user] homeAddress:', req.body.homeAddress);
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+
+        // Assign each field directly — most reliable approach with Mongoose
+        const stringFields = [
+            'firstName', 'middleName', 'lastName', 'phone', 'department', 'position',
+            'bankName', 'bankAccount', 'routingNumber', 'employeeId',
+            'homeAddress', 'manager', 'officeLocation',
+            'emergencyContactName', 'emergencyContactRelation', 'emergencyContactPhone'
+        ];
+        for (const field of stringFields) {
+            if (req.body[field] !== undefined) {
+                user[field] = req.body[field];
+            }
+        }
+
+        // Handle date field safely
+        if (req.body.startDate && req.body.startDate !== '') {
+            const parsed = new Date(req.body.startDate);
+            if (!isNaN(parsed.getTime())) user.startDate = parsed;
+        }
+
+        await user.save();
+
+        // Return user without password
+        const result = user.toObject();
+        delete result.password;
+        res.json(result);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('Profile update error:', err.message);
+        res.status(500).json({ msg: 'Server error: ' + err.message });
     }
 });
 

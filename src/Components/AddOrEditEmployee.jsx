@@ -12,7 +12,7 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
         basicSalary: 0, otherPayment: 0, overtimeHours: 0, hourlyRate: 0, studentLoan: 0,
         taxCode: '1257L', sin: '', niCode: 'A',
         taxablePay: 0, pensionPay: 0, niPayment: 0, taxPayment: 0, netPay: 0,
-        status: 'Active',
+        status: 'Active', bankName: '', routingNumber: '', bankAccount: '',
     };
 
     const [employeeData, setEmployeeData] = useState(initialEmployeeState);
@@ -241,6 +241,25 @@ const AddOrEditEmployee = ({ onNavigate, employeeId }) => {
                             <div>
                                 <label className="block text-sm font-medium text-gray-600">Student Loan ($)</label>
                                 <input type="number" name="studentLoan" value={employeeData.studentLoan} onChange={handleInputChange} className="w-full mt-1 p-2 border rounded-md"/>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Banking Details */}
+                    <section>
+                        <h3 className="text-lg font-semibold border-b pb-2 mb-4 text-gray-700">Banking Details (Direct Deposit)</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-600">Bank Name</label>
+                                <input type="text" name="bankName" value={employeeData.bankName} onChange={handleInputChange} className="w-full mt-1 p-2 border rounded-md" placeholder="e.g. Chase" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-600">Routing Number</label>
+                                <input type="text" name="routingNumber" value={employeeData.routingNumber} onChange={handleInputChange} className="w-full mt-1 p-2 border rounded-md" placeholder="9-digit routing" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-600">Account Number</label>
+                                <input type="text" name="bankAccount" value={employeeData.bankAccount} onChange={handleInputChange} className="w-full mt-1 p-2 border rounded-md" placeholder="Account #" />
                             </div>
                         </div>
                     </section>

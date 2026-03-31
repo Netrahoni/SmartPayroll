@@ -20,6 +20,9 @@ const ICONS = {
     save: 'M17 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3zm3-10H5V5h10v4z',
     warning: 'M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z',
     info: 'M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z',
+    heart: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
+    bank: 'M4 10h3v7H4zM10.5 10h3v7h-3zM2 19h20v3H2zM17 10h3v7h-3zM12 1L2 6v2h20V6z',
+    briefcase: 'M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.9-2-2-2zm-6 0h-4V4h4v2z',
 };
 
 // ─── Design Tokens ──────────────────────────────────────────────────────────
@@ -470,11 +473,25 @@ const getStrength = (pw) => {
 
 // ─── Settings Sections ───────────────────────────────────────────────────────
 
-const ProfileSettings = ({ user, setUser }) => {
+const ProfileSettings = ({ user, setUser, scrollTo }) => {
     const { addNotification } = useNotifications();
-    const [formData, setFormData] = useState({ firstName: '', middleName: '', lastName: '', email: '', phone: '', department: '', position: '' });
+    const [formData, setFormData] = useState({
+        firstName: '', middleName: '', lastName: '', email: '', phone: '',
+        department: '', position: '', homeAddress: '',
+        bankName: '', routingNumber: '', bankAccount: '',
+        startDate: '', manager: '', officeLocation: '',
+        emergencyContactName: '', emergencyContactRelation: '', emergencyContactPhone: '',
+    });
     const [message, setMessage] = useState({ text: '', type: '' });
     const [saving, setSaving] = useState(false);
+
+    // Scroll to anchor section when navigating via sidebar shortcuts
+    useEffect(() => {
+        if (scrollTo) {
+            const target = document.getElementById(`section-${scrollTo}`);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, [scrollTo]);
 
     // Avatar upload states
     const [avatarPreview, setAvatarPreview] = useState(null); // local preview (base64)
@@ -488,7 +505,14 @@ const ProfileSettings = ({ user, setUser }) => {
             setFormData({
                 firstName: user.firstName || '', middleName: user.middleName || '',
                 lastName: user.lastName || '', email: user.email || '',
-                phone: user.phone || '', department: user.department || '', position: user.position || ''
+                phone: user.phone || '', department: user.department || '', position: user.position || '',
+                homeAddress: user.homeAddress || '',
+                bankName: user.bankName || '', routingNumber: user.routingNumber || '', bankAccount: user.bankAccount || '',
+                startDate: user.startDate ? user.startDate.slice(0, 10) : '',
+                manager: user.manager || '', officeLocation: user.officeLocation || '',
+                emergencyContactName: user.emergencyContactName || '',
+                emergencyContactRelation: user.emergencyContactRelation || '',
+                emergencyContactPhone: user.emergencyContactPhone || '',
             });
             // Sync avatar preview from saved user
             if (user.avatar) setAvatarPreview(user.avatar);
@@ -583,7 +607,7 @@ const ProfileSettings = ({ user, setUser }) => {
             if (res.ok) {
                 setUser(updatedUser);
                 setMessage({ text: 'Profile updated successfully!', type: 'success' });
-                addNotification(`Profile for ${updatedUser.fullName} was updated.`);
+                addNotification(`Profile for ${updatedUser.firstName} ${updatedUser.lastName} was updated.`);
                 // preserve current avatar in preview
                 if (updatedUser.avatar) setAvatarPreview(updatedUser.avatar);
             } else {
@@ -600,9 +624,11 @@ const ProfileSettings = ({ user, setUser }) => {
 
     return (
         <form onSubmit={handleSubmit} aria-label="Profile settings form">
-            <h2 style={styles.sectionTitle}>Profile Settings</h2>
-            <p style={styles.sectionSubtitle}>Update your personal information and how others see you in the system.</p>
-
+            {/* Header */}
+            <div style={{ marginBottom: 20 }}>
+                <h2 style={styles.sectionTitle}>Profile Settings</h2>
+                <p style={styles.sectionSubtitle}>Update your personal information and how others see you.</p>
+            </div>
             {/* ── Avatar Upload Card ── */}
             <div style={styles.card}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 24, flexWrap: 'wrap' }}>
@@ -748,7 +774,8 @@ const ProfileSettings = ({ user, setUser }) => {
                 <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
 
-            <CardSection icon={ICONS.user} title="Personal Information" desc="Your name and contact details">
+            <div id="section-personal">
+            <CardSection icon={ICONS.user} title="Personal Information" desc="Your name, contact details and home address">
                 <div style={styles.formGrid3}>
                     <InputField label="First Name" name="firstName" value={formData.firstName} onChange={onChange} required />
                     <InputField label="Middle Name" name="middleName" value={formData.middleName} onChange={onChange} placeholder="Optional" />
@@ -758,25 +785,71 @@ const ProfileSettings = ({ user, setUser }) => {
                     <InputField label="Email Address" name="email" type="email" value={formData.email} onChange={onChange} disabled hint="Email cannot be changed. Contact admin for assistance." />
                     <InputField label="Phone Number" name="phone" type="tel" value={formData.phone} onChange={onChange} placeholder="+1 (555) 000-0000" />
                 </div>
+                <div style={styles.formGrid1}>
+                    <div>
+                        <label htmlFor="field-homeAddress" style={styles.label}>Home Address</label>
+                        <textarea
+                            id="field-homeAddress"
+                            name="homeAddress"
+                            value={formData.homeAddress}
+                            onChange={onChange}
+                            rows={2}
+                            placeholder="123 Main St, City, State, ZIP"
+                            style={styles.textarea}
+                        />
+                    </div>
+                </div>
             </CardSection>
+            </div>
 
-            <CardSection icon={ICONS.office} title="Work Information" desc="Your role and department within the company">
+            <div id="section-employment">
+            <CardSection icon={ICONS.office} title="Employment Details" desc="Your role, department and work location">
                 <div style={styles.formGrid2}>
                     <InputField label="Department" name="department" value={formData.department} onChange={onChange} placeholder="e.g. Engineering" />
                     <InputField label="Position / Title" name="position" value={formData.position} onChange={onChange} placeholder="e.g. Software Engineer" />
+                    <InputField label="Line Manager" name="manager" value={formData.manager} onChange={onChange} placeholder="Manager's full name" />
+                    <InputField label="Office Location" name="officeLocation" value={formData.officeLocation} onChange={onChange} placeholder="e.g. New York Office" />
+                    <InputField label="Start Date" name="startDate" type="date" value={formData.startDate} onChange={onChange} />
                 </div>
             </CardSection>
+            </div>
 
+            <div id="section-payment">
+            <CardSection icon={ICONS.bank} title="Payment Information" desc="Direct deposit banking details for automated payroll processing">
+                <div style={styles.formGrid2}>
+                    <InputField label="Bank Name" name="bankName" value={formData.bankName} onChange={onChange} placeholder="e.g. Citibank, Chase" />
+                    <InputField label="Routing Number" name="routingNumber" value={formData.routingNumber} onChange={onChange} placeholder="9-digit routing number" />
+                </div>
+                <div style={{ ...styles.formGrid1, marginBottom: 0 }}>
+                    <InputField label="Account Number" name="bankAccount" value={formData.bankAccount} onChange={onChange} placeholder="Account number" />
+                </div>
+            </CardSection>
+            </div>
+
+            <div id="section-emergency">
+            <CardSection icon={ICONS.heart} title="Emergency Contact" desc="Who to contact in case of an emergency">
+                <div style={styles.formGrid3}>
+                    <InputField label="Contact Name" name="emergencyContactName" value={formData.emergencyContactName} onChange={onChange} placeholder="Full name" />
+                    <InputField label="Relationship" name="emergencyContactRelation" value={formData.emergencyContactRelation} onChange={onChange} placeholder="e.g. Spouse, Parent" />
+                    <InputField label="Phone Number" name="emergencyContactPhone" type="tel" value={formData.emergencyContactPhone} onChange={onChange} placeholder="+1 (555) 000-0000" />
+                </div>
+            </CardSection>
+            </div>
+
+            {/* Save button + message — BOTTOM, single location */}
             {message.text && (
-                <div style={message.type === 'success' ? styles.alertSuccess : styles.alertError} role="alert">
+                <div style={{
+                    ...(message.type === 'success' ? styles.alertSuccess : styles.alertError),
+                    marginBottom: 12,
+                }} role="alert">
                     <Ico d={message.type === 'success' ? ICONS.check : ICONS.warning} size={16} />
                     {message.text}
                 </div>
             )}
-
             <div style={styles.btnFooter}>
                 <button
                     type="submit"
+                    id="profile-save-btn"
                     disabled={saving}
                     style={{ ...styles.btnPrimary, opacity: saving ? 0.7 : 1 }}
                     onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(37,99,235,0.40)'; }}
@@ -1074,7 +1147,7 @@ const NotificationSettings = () => {
     return (
         <div>
             <h2 style={styles.sectionTitle}>Notification Preferences</h2>
-            <p style={styles.sectionSubtitle}>Control how and when you receive notifications from SmartPayroll.</p>
+            <p style={styles.sectionSubtitle}>Control how and when you receive notifications from HamroPayroll.</p>
 
             {notifGroups.map((group, gi) => (
                 <CardSection key={gi} icon={ICONS.bell} title={group.title} desc="">
@@ -1117,10 +1190,23 @@ const NotificationSettings = () => {
 
 // ─── Navigation Items ────────────────────────────────────────────────────────
 const NAV_ITEMS = [
-    { key: 'Profile', label: 'Profile', icon: ICONS.user, desc: 'Personal info' },
-    { key: 'Security', label: 'Security', icon: ICONS.lock, desc: 'Password & access' },
-    { key: 'Company', label: 'Company', icon: ICONS.office, desc: 'Company-wide config' },
-    { key: 'Notifications', label: 'Notifications', icon: ICONS.bell, desc: 'Alert preferences' },
+    {
+        groupLabel: 'MY PROFILE',
+        items: [
+            { key: 'Profile', label: 'Profile', icon: ICONS.user, desc: 'Personal info & photo' },
+            { key: 'Employment', label: 'Employment', icon: ICONS.briefcase, desc: 'Role, dept & start date' },
+            { key: 'Payment', label: 'Payment Info', icon: ICONS.bank, desc: 'Banking & direct deposit' },
+            { key: 'Emergency', label: 'Emergency', icon: ICONS.heart, desc: 'Emergency contact' },
+        ],
+    },
+    {
+        groupLabel: 'ACCOUNT',
+        items: [
+            { key: 'Security', label: 'Security', icon: ICONS.lock, desc: 'Password & access' },
+            { key: 'Company', label: 'Company', icon: ICONS.office, desc: 'Company-wide config' },
+            { key: 'Notifications', label: 'Notifications', icon: ICONS.bell, desc: 'Alert preferences' },
+        ],
+    },
 ];
 
 // ─── Main Settings Component ─────────────────────────────────────────────────
@@ -1130,9 +1216,12 @@ const Settings = ({ user, setUser }) => {
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'Profile': return <ProfileSettings user={user} setUser={setUser} />;
-            case 'Security': return <SecuritySettings />;
-            case 'Company': return <CompanySettings />;
+            case 'Profile':     return <ProfileSettings user={user} setUser={setUser} scrollTo="personal" />;
+            case 'Employment':  return <ProfileSettings user={user} setUser={setUser} scrollTo="employment" />;
+            case 'Payment':     return <ProfileSettings user={user} setUser={setUser} scrollTo="payment" />;
+            case 'Emergency':   return <ProfileSettings user={user} setUser={setUser} scrollTo="emergency" />;
+            case 'Security':    return <SecuritySettings />;
+            case 'Company':     return <CompanySettings />;
             case 'Notifications': return <NotificationSettings />;
             default: return <ProfileSettings user={user} setUser={setUser} />;
         }
@@ -1170,56 +1259,60 @@ const Settings = ({ user, setUser }) => {
 
                 {/* Nav */}
                 <nav style={styles.navGroup} aria-label="Settings sections">
-                    <p style={styles.navGroupLabel}>Options</p>
-                    {NAV_ITEMS.map(item => {
-                        const isActive = activeTab === item.key;
-                        return (
-                            <button
-                                key={item.key}
-                                id={`settings-nav-${item.key.toLowerCase()}`}
-                                onClick={() => setActiveTab(item.key)}
-                                aria-current={isActive ? 'page' : undefined}
-                                style={{
-                                    width: '100%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 11,
-                                    padding: '10px 12px',
-                                    borderRadius: 10,
-                                    border: isActive ? '1.5px solid #BFDBFE' : '1.5px solid transparent',
-                                    background: isActive ? 'linear-gradient(135deg, #EEF2FF, #DBEAFE)' : 'transparent',
-                                    color: isActive ? '#1D4ED8' : '#475569',
-                                    fontWeight: isActive ? 600 : 400,
-                                    fontSize: 13.5,
-                                    cursor: 'pointer',
-                                    textAlign: 'left',
-                                    marginBottom: 3,
-                                    transition: 'all 0.18s',
-                                    outline: 'none',
-                                    boxShadow: isActive ? '0 2px 8px rgba(37,99,235,0.10)' : 'none',
-                                    fontFamily: 'inherit',
-                                }}
-                                onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = '#F1F5F9'; e.currentTarget.style.color = '#1E293B'; } }}
-                                onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#475569'; } }}
-                                onFocus={e => { if (!isActive) e.currentTarget.style.background = '#F1F5F9'; }}
-                                onBlur={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#475569'; } }}
-                            >
-                                <div style={{
-                                    width: 32, height: 32, borderRadius: 8, flexShrink: 0,
-                                    background: isActive ? 'linear-gradient(135deg,#2563EB,#1D4ED8)' : '#F1F5F9',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    color: isActive ? '#fff' : '#64748B',
-                                    transition: 'all 0.18s',
-                                }}>
-                                    <Ico d={item.icon} size={16} />
-                                </div>
-                                <div>
-                                    <p style={{ lineHeight: 1.2 }}>{item.label}</p>
-                                    <p style={{ fontSize: 11, color: isActive ? '#60A5FA' : '#94A3B8', fontWeight: 400, marginTop: 1 }}>{item.desc}</p>
-                                </div>
-                            </button>
-                        );
-                    })}
+                    {NAV_ITEMS.map((group, gi) => (
+                        <div key={gi} style={{ marginBottom: 4 }}>
+                            <p style={styles.navGroupLabel}>{group.groupLabel}</p>
+                            {group.items.map(item => {
+                                const isActive = activeTab === item.key;
+                                return (
+                                    <button
+                                        key={item.key}
+                                        id={`settings-nav-${item.key.toLowerCase()}`}
+                                        onClick={() => setActiveTab(item.key)}
+                                        aria-current={isActive ? 'page' : undefined}
+                                        style={{
+                                            width: '100%',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 11,
+                                            padding: '10px 12px',
+                                            borderRadius: 10,
+                                            border: isActive ? '1.5px solid #BFDBFE' : '1.5px solid transparent',
+                                            background: isActive ? 'linear-gradient(135deg, #EEF2FF, #DBEAFE)' : 'transparent',
+                                            color: isActive ? '#1D4ED8' : '#475569',
+                                            fontWeight: isActive ? 600 : 400,
+                                            fontSize: 13.5,
+                                            cursor: 'pointer',
+                                            textAlign: 'left',
+                                            marginBottom: 3,
+                                            transition: 'all 0.18s',
+                                            outline: 'none',
+                                            boxShadow: isActive ? '0 2px 8px rgba(37,99,235,0.10)' : 'none',
+                                            fontFamily: 'inherit',
+                                        }}
+                                        onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = '#F1F5F9'; e.currentTarget.style.color = '#1E293B'; } }}
+                                        onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#475569'; } }}
+                                        onFocus={e => { if (!isActive) e.currentTarget.style.background = '#F1F5F9'; }}
+                                        onBlur={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#475569'; } }}
+                                    >
+                                        <div style={{
+                                            width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+                                            background: isActive ? 'linear-gradient(135deg,#2563EB,#1D4ED8)' : '#F1F5F9',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            color: isActive ? '#fff' : '#64748B',
+                                            transition: 'all 0.18s',
+                                        }}>
+                                            <Ico d={item.icon} size={16} />
+                                        </div>
+                                        <div>
+                                            <p style={{ lineHeight: 1.2 }}>{item.label}</p>
+                                            <p style={{ fontSize: 11, color: isActive ? '#60A5FA' : '#94A3B8', fontWeight: 400, marginTop: 1 }}>{item.desc}</p>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    ))}
                 </nav>
             </aside>
 

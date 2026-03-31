@@ -1,5 +1,4 @@
 import React from 'react';
-import logo from '../assets/smartpayroll-logo.png';
 
 const NavIcon = ({ d, size = 18 }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -24,7 +23,9 @@ const ICONS = {
 const navGroups = [
     {
         label: null,
-        items: [{ key: 'Dashboard', label: 'Dashboard', icon: 'dashboard' }],
+        items: [
+            { key: 'Dashboard', label: 'Dashboard', icon: 'dashboard' },
+        ],
     },
     {
         label: 'PEOPLE',
@@ -38,11 +39,11 @@ const navGroups = [
     {
         label: 'CORE',
         items: [
-            { key: 'Payroll', label: 'Payroll', icon: 'payroll' },
-            { key: 'Reports', label: 'Reports', icon: 'reports' },
-            { key: 'Marketplace', label: 'Marketplace', icon: 'marketplace' },
-            { key: 'Logs', label: 'Logs', icon: 'logs' },
-            { key: 'Settings', label: 'Settings', icon: 'settings' },
+            { key: 'Payroll',      label: 'Payroll',      icon: 'payroll' },
+            { key: 'Reports',      label: 'Reports',       icon: 'reports' },
+            { key: 'Marketplace',  label: 'Marketplace',   icon: 'marketplace' },
+            { key: 'Logs',         label: 'Logs',          icon: 'logs' },
+            { key: 'Settings',     label: 'Settings',      icon: 'settings' },
         ],
     },
 ];
@@ -66,8 +67,17 @@ const Sidebar = ({ activeItem, setActiveItem, onLogout, isSidebarOpen }) => {
             }}
         >
             {/* Logo */}
-            <div style={{ padding: '24px 16px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src={logo} alt="Smart Payroll" style={{ height: 42, width: 'auto', objectFit: 'contain' }} />
+            <div style={{ padding: '24px 16px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                <div style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg,#2563EB,#06B6D4)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(37,99,235,0.25)', flexShrink: 0 }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
+                    </svg>
+                </div>
+                {isSidebarOpen && (
+                    <span style={{ fontSize: 16, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
+                        HamroPayroll
+                    </span>
+                )}
             </div>
 
             {/* Nav */}
@@ -81,33 +91,31 @@ const Sidebar = ({ activeItem, setActiveItem, onLogout, isSidebarOpen }) => {
                             }}>{group.label}</p>
                         )}
                         {group.items.map((item) => {
-                            const isReallyActive = item.key === activeItem;
-
+                            const isActive = item.key === activeItem;
                             return (
                                 <button
-                                    key={`${item.key}-${item.label}`}
+                                    key={item.key}
                                     onClick={() => setActiveItem(item.key)}
                                     style={{
-                                        width: '100%',
+                                        width: 'calc(100% - 12px)',
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: 10,
                                         padding: '8px 12px 8px 16px',
                                         margin: '1px 6px',
-                                        width: 'calc(100% - 12px)',
                                         borderRadius: 8,
                                         border: 'none',
                                         cursor: 'pointer',
-                                        background: isReallyActive ? '#EEF2FF' : 'transparent',
-                                        color: isReallyActive ? '#2563EB' : '#4B5563',
-                                        fontWeight: isReallyActive ? 600 : 400,
+                                        background: isActive ? '#EEF2FF' : 'transparent',
+                                        color: isActive ? '#2563EB' : '#4B5563',
+                                        fontWeight: isActive ? 600 : 400,
                                         fontSize: 13.5,
                                         textAlign: 'left',
                                         whiteSpace: 'nowrap',
                                         transition: 'background 0.15s, color 0.15s',
                                     }}
-                                    onMouseEnter={e => { if (!isReallyActive) { e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; } }}
-                                    onMouseLeave={e => { if (!isReallyActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#4B5563'; } }}
+                                    onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; } }}
+                                    onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#4B5563'; } }}
                                 >
                                     <NavIcon d={ICONS[item.icon]} size={17} />
                                     <span>{item.label}</span>
@@ -119,13 +127,22 @@ const Sidebar = ({ activeItem, setActiveItem, onLogout, isSidebarOpen }) => {
             </nav>
 
             {/* Logout */}
-            <div style={{ padding: '12px 10px', borderTop: '1px solid #F3F4F6' }}>
+            <div style={{ padding: '8px 6px 12px', borderTop: '1px solid #F3F4F6', flexShrink: 0 }}>
                 <button
                     onClick={onLogout}
                     style={{
-                        width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                        padding: '8px 12px', borderRadius: 8, border: 'none', cursor: 'pointer',
-                        background: 'transparent', color: '#6B7280', fontSize: 13.5,
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '8px 12px',
+                        borderRadius: 8,
+                        border: 'none',
+                        cursor: 'pointer',
+                        background: 'transparent',
+                        color: '#6B7280',
+                        fontSize: 13.5,
+                        textAlign: 'left',
                         transition: 'background 0.15s, color 0.15s',
                     }}
                     onMouseEnter={e => { e.currentTarget.style.background = '#FEF2F2'; e.currentTarget.style.color = '#EF4444'; }}

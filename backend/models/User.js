@@ -40,7 +40,33 @@ const UserSchema = new mongoose.Schema({
     avatar: {
         type: String,
         default: ''
-    }
+    },
+    bankName: {
+        type: String,
+        default: ''
+    },
+    bankAccount: {
+        type: String,
+        default: ''
+    },
+    routingNumber: {
+        type: String,
+        default: ''
+    },
+    resetOtp: {
+        type: String
+    },
+    resetOtpExpire: {
+        type: Date
+    },
+    employeeId: { type: String, default: '' },
+    homeAddress: { type: String, default: '' },
+    startDate: { type: Date, default: Date.now },
+    manager: { type: String, default: '' },
+    officeLocation: { type: String, default: '' },
+    emergencyContactName: { type: String, default: '' },
+    emergencyContactRelation: { type: String, default: '' },
+    emergencyContactPhone: { type: String, default: '' }
 }, { 
     timestamps: true,
     toJSON: { virtuals: true },

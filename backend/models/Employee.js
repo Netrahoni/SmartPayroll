@@ -23,6 +23,11 @@ const employeeSchema = new mongoose.Schema({
     hourlyRate: { type: Number, default: 0, min: 0 },
     studentLoan: { type: Number, default: 0, min: 0 },
 
+    // Banking Details
+    bankName: { type: String, trim: true, default: '' },
+    routingNumber: { type: String, trim: true, default: '' },
+    bankAccount: { type: String, trim: true, default: '' },
+
     // Payroll Calculation (Inputs/Codes)
     taxCode: { type: String, default: '1257L', trim: true },
     sin: { type: String, required: true, trim: true }, // Using 'sin' for NI Number

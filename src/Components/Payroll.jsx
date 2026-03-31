@@ -119,7 +119,7 @@ const Payroll = ({ onNavigate, employees = [], fetchEmployees, globalSearchQuery
       fmt(e.basicSalary), fmt(e.taxPayment), fmt(e.netPay),
     ]);
     doc.setFontSize(20); doc.setFont('helvetica', 'bold');
-    doc.text('SmartPayroll — Payroll Report', 14, 22);
+    doc.text('HamroPayroll — Payroll Report', 14, 22);
     doc.setFontSize(10); doc.setFont('helvetica', 'normal');
     doc.text(`Period: ${payPeriodFilter}   |   Pay date: ${format(nextPayDate, 'MMM dd, yyyy')}`, 14, 30);
     doc.text(`Generated: ${format(new Date(), 'MMM dd, yyyy HH:mm')}`, 14, 36);
@@ -141,7 +141,7 @@ const Payroll = ({ onNavigate, employees = [], fetchEmployees, globalSearchQuery
       const doc = new jsPDF();
       const gross = emp.basicSalary || 0, tax = emp.taxPayment || 0, cpp = emp.pensionPay || 0, ei = emp.niPayment || 0, net = emp.netPay || 0;
       doc.setFontSize(20); doc.setFont('helvetica', 'bold');
-      doc.text('SmartPayroll Inc.', 14, 20);
+      doc.text('HamroPayroll Inc.', 14, 20);
       doc.setFontSize(9); doc.setFont('helvetica', 'normal');
       doc.text('Confidential Pay Stub', 14, 27);
       doc.setFontSize(11); doc.setFont('helvetica', 'bold');
@@ -162,7 +162,7 @@ const Payroll = ({ onNavigate, employees = [], fetchEmployees, globalSearchQuery
       const fY = doc.lastAutoTable.finalY + 8;
       doc.setFont('helvetica', 'bold'); doc.text('NET PAY', 140, fY); doc.setFontSize(14);
       doc.setTextColor(37, 99, 235); doc.text(fmt(net), 140, fY + 8); doc.setTextColor(0); doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal'); doc.text('This is an auto-generated document from SmartPayroll.', 14, fY + 20);
+      doc.setFont('helvetica', 'normal'); doc.text('This is an auto-generated document from HamroPayroll.', 14, fY + 20);
       doc.save(`PayStub-${emp.employeeName.replace(/ /g, '-')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
     } catch (err) { addNotification('Error generating pay stub.', 'error'); }
   };
